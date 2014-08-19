@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<UIViewGroup xmlns:ui="http://schemas.android.com/apk/res-auto"
+             ui:positionX="@integer/x_navigator"
+             ui:positionY="@integer/y_navigator"
+             ui:positionZ="@integer/z_navigator"
+             ui:width="@integer/width_layer"
+             ui:height="@integer/height_layer"
+             ui:isFocusable="true">
+
+  <UIViewGroup
+    ui:width="300"
+    ui:height="300"
+    ui:positionX="200"
+    ui:positionY="180"
+
+    ui:boundToContentSize="true"
+    >
+
+    <UIImageView
+      ui:width="300"
+      ui:height="300"
+      ui:positionX="0"
+      ui:src="@drawable/progress_hud_bg"
+      />
+
+    <UIImageView
+      ui:width="64"
+      ui:height="64"
+      ui:positionX="118"
+      ui:positionY="60"
+      ui:id="@+id/spinner"
+      ui:src=" { Binding Path = 'icon' } "
+      />
+
+    <UITextView
+      ui:width="260"
+      ui:fontSize="32"
+      ui:positionX="20"
+      ui:positionY="154"
+      ui:textAlignment="center"
+      ui:text=" { Binding Path = 'message' }"
+      />
+
+  </UIViewGroup>
+
+
+</UIViewGroup>
