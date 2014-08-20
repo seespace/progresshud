@@ -3,41 +3,41 @@
 <UIViewGroup xmlns:ui="http://schemas.android.com/apk/res-auto"
              ui:positionX="@integer/x_navigator"
              ui:positionY="@integer/y_navigator"
-             ui:positionZ="@integer/z_navigator"
+             ui:positionZ="700"
              ui:width="@integer/width_layer"
              ui:height="@integer/height_layer"
              ui:isFocusable="true">
 
   <UIViewGroup
-    ui:width="300"
-    ui:height="300"
-    ui:positionX="200"
-    ui:positionY="180"
+    ui:width="200"
+    ui:height="200"
+    ui:positionX="60"
+    ui:positionY="273"
 
     ui:boundToContentSize="true"
     >
 
     <UIImageView
-      ui:width="300"
-      ui:height="300"
+      ui:width="200"
+      ui:height="200"
       ui:positionX="0"
       ui:src="@drawable/progress_hud_bg"
       />
 
     <UIImageView
-      ui:width="64"
-      ui:height="64"
-      ui:positionX="118"
-      ui:positionY="60"
+      ui:width="32"
+      ui:height="32"
+      ui:positionX="84"
+      ui:positionY="40"
       ui:id="@+id/spinner"
       ui:src=" { Binding Path = 'icon' } "
       />
 
     <UITextView
-      ui:width="260"
-      ui:fontSize="32"
+      ui:width="160"
+      ui:fontSize="24"
       ui:positionX="20"
-      ui:positionY="154"
+      ui:positionY="100"
       ui:textAlignment="center"
       ui:text=" { Binding Path = 'message' }"
       />

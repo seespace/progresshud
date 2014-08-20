@@ -1,8 +1,11 @@
 package tv.inair.progresshud;
 
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 
+import inair.app.IAChildLayout;
+import inair.app.IALayout;
 import inair.app.IARootLayout;
 import inair.tv.TVScreen;
 import inair.view.UIAnimation;
@@ -18,14 +21,24 @@ import inair.view.UIViewDescriptor;
  */
 public class UIProgressHUD {
 
-  IARootLayout mRootLayout;
-  boolean mCancelable = true;
+  public static final int DEFAULT_SHOW_DURATION = 3000;
 
+  public final IALayout container;
   public final Layout layout;
   public final ViewModel viewModel;
 
-  public UIProgressHUD(IARootLayout rootLayout) {
-    mRootLayout = rootLayout;
+  public UIProgressHUD(IAChildLayout container) {
+    this.container = container;
+    _resources = container.getResources();
+
+    viewModel = new ViewModel();
+    layout = new Layout();
+    layout.setDataContext(viewModel);
+  }
+
+  public UIProgressHUD(IARootLayout container) {
+    this.container = container;
+    _resources = container.getResources();
 
     viewModel = new ViewModel();
     layout = new Layout();
@@ -45,7 +58,7 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD show(int drawableResId, int statusResId) {
-    return show(mRootLayout.getResources().getDrawable(drawableResId), mRootLayout.getResources().getString(statusResId));
+    return show(_resources.getDrawable(drawableResId), _resources.getString(statusResId));
   }
 
   public UIProgressHUD showError(String status) {
@@ -57,7 +70,7 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD show(int resId, String status) {
-    return show(mRootLayout.getResources().getDrawable(resId), status);
+    return show(_resources.getDrawable(resId), status);
   }
 
   synchronized public UIProgressHUD show(Drawable drawable, String status) {
@@ -76,13 +89,13 @@ public class UIProgressHUD {
     viewModel.setMessage(status);
 
     if (!_showing) {
+      UIViewDescriptor selfState = UIViewDescriptor.create(0f, UIAnimation.identityMatrix(), true);
+      UIAnimationDescriptor selfAnim = UIAnimationDescriptor.createFromViewDescriptor(UIViewDescriptor.create(1.0f, UIAnimation.identityMatrix(), false), 1000);
       UIAnimationDescriptor parentAnim = UIAnimationDescriptor.createFromViewDescriptor(UIViewDescriptor.create(0.1f, UIAnimation.identityMatrix(), false), 1000);
       UIViewDescriptor tvState = TVScreen.DefaultState.APP_OPENED.getState();
-      mRootLayout.presentChildLayout(layout, null, null, parentAnim, tvState, true);
+      container.presentChildLayout(layout, selfState, selfAnim, parentAnim, tvState, true);
     }
 
-    _thenDismiss = true;
-    _timer = null;
     _showing = true;
   }
 
@@ -117,11 +130,23 @@ public class UIProgressHUD {
     layout.dismissLayout();
   }
 
+  //region static
+  public static UIProgressHUD with(IAChildLayout container) {
+    return new UIProgressHUD(container);
+  }
+
+  public static UIProgressHUD with(IARootLayout container) {
+    return new UIProgressHUD(container);
+  }
+  //endregion
+
   //region internal
   private boolean _showing = false;
   private CountDownTimer _timer = null;
   private boolean _thenDismiss = true;
   private Drawable _cachedDrawable;
   private String _cachedStatus;
+
+  private Resources _resources;
   //endregion
 }
