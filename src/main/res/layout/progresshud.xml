@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <UIViewGroup xmlns:ui="http://schemas.android.com/apk/res-auto"
-             ui:positionX="@integer/x_navigator"
-             ui:positionY="@integer/y_navigator"
-             ui:positionZ="700"
-             ui:width="@integer/width_layer"
-             ui:height="@integer/height_layer"
+             ui:positionX="@integer/layered_x_navigator"
+             ui:positionY="@integer/layered_y_navigator"
+             ui:positionZ="@integer/layered_first_layer_z"
+             ui:width="@integer/layered_layer_width"
+             ui:height="@integer/layered_layer_height"
              ui:isFocusable="true">
 
   <UIViewGroup
