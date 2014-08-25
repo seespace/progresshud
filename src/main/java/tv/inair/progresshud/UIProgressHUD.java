@@ -8,7 +8,7 @@ import inair.app.IAChildLayout;
 import inair.app.IALayout;
 import inair.app.IARootLayout;
 import inair.tv.TVScreen;
-import inair.view.UIAnimation;
+import inair.utils.Transform;
 import inair.view.UIAnimationDescriptor;
 import inair.view.UIViewDescriptor;
 
@@ -89,9 +89,9 @@ public class UIProgressHUD {
     viewModel.setMessage(status);
 
     if (!_showing) {
-      UIViewDescriptor selfState = UIViewDescriptor.create(0f, UIAnimation.identityMatrix(), true);
-      UIAnimationDescriptor selfAnim = UIAnimationDescriptor.createFromViewDescriptor(UIViewDescriptor.create(1.0f, UIAnimation.identityMatrix(), false), 1000);
-      UIAnimationDescriptor parentAnim = UIAnimationDescriptor.createFromViewDescriptor(UIViewDescriptor.create(0.1f, UIAnimation.identityMatrix(), false), 1000);
+      UIViewDescriptor selfState = UIViewDescriptor.create(0f, Transform.Identity().get(), true);
+      UIAnimationDescriptor selfAnim = UIAnimationDescriptor.createFromViewDescriptor(UIViewDescriptor.create(1.0f, Transform.Identity().get(), false), 1000);
+      UIAnimationDescriptor parentAnim = UIAnimationDescriptor.createFromViewDescriptor(UIViewDescriptor.create(0.1f, Transform.Identity().get(), false), 1000);
       UIViewDescriptor tvState = TVScreen.DefaultState.APP_OPENED.getState();
       container.presentChildLayout(layout, selfState, selfAnim, parentAnim, tvState, true);
     }
