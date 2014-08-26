@@ -7,9 +7,9 @@ import android.os.CountDownTimer;
 import inair.app.IAChildLayout;
 import inair.app.IALayout;
 import inair.app.IARootLayout;
+import inair.app.PresentParam;
 import inair.tv.TVScreen;
 import inair.utils.Transform;
-import inair.view.UIAnimationDescriptor;
 import inair.view.UIViewDescriptor;
 
 /**
@@ -89,11 +89,10 @@ public class UIProgressHUD {
     viewModel.setMessage(status);
 
     if (!_showing) {
-      UIViewDescriptor selfState = UIViewDescriptor.create(0f, Transform.Identity().get(), true);
-      UIAnimationDescriptor selfAnim = UIAnimationDescriptor.createFromViewDescriptor(UIViewDescriptor.create(1.0f, Transform.Identity().get(), false), 1000);
-      UIAnimationDescriptor parentAnim = UIAnimationDescriptor.createFromViewDescriptor(UIViewDescriptor.create(0.1f, Transform.Identity().get(), false), 1000);
-      UIViewDescriptor tvState = TVScreen.DefaultState.APP_OPENED.getState();
-      container.presentChildLayout(layout, selfState, selfAnim, parentAnim, tvState, true);
+      UIViewDescriptor starting = UIViewDescriptor.create(0f, Transform.Identity().build(), true);
+      UIViewDescriptor child = UIViewDescriptor.create(1f, Transform.Identity().build(), false);
+      UIViewDescriptor parent = UIViewDescriptor.create(.1f, Transform.Identity().build(), false);
+      container.present(layout, PresentParam.create().startingState(starting).childState(child).parentState(parent).screenState(TVScreen.DefaultState.APP_OPENED).duration(1000));
     }
 
     _showing = true;
@@ -127,7 +126,7 @@ public class UIProgressHUD {
   }
 
   public void dismiss() {
-    layout.dismissLayout();
+    layout.dismiss();
   }
 
   //region static
