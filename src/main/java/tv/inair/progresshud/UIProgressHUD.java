@@ -73,7 +73,21 @@ public class UIProgressHUD {
     return show(_resources.getDrawable(resId), status);
   }
 
+  public UIProgressHUD cancel() {
+    _showing = false;
+    _timer = null;
+    _thenDismiss = true;
+    _cachedDrawable = null;
+    _cachedStatus = null;
+    _cancelable = false;
+    return this;
+  }
+
   synchronized public UIProgressHUD show(Drawable drawable, String status) {
+    if (_cancelable) {
+      cancel();
+    }
+
     if (!_thenDismiss && _timer != null) {
       _cachedDrawable = drawable;
       _cachedStatus = status;
@@ -96,6 +110,8 @@ public class UIProgressHUD {
     }
 
     _showing = true;
+
+    _cancelable = true;
   }
 
   public UIProgressHUD in(long ms) {
@@ -122,6 +138,7 @@ public class UIProgressHUD {
 
   public UIProgressHUD then() {
     _thenDismiss = false;
+    _cancelable = false;
     return this;
   }
 
@@ -140,11 +157,13 @@ public class UIProgressHUD {
   //endregion
 
   //region internal
+  // TODO show more than 2 statuses
   private boolean _showing = false;
   private CountDownTimer _timer = null;
   private boolean _thenDismiss = true;
   private Drawable _cachedDrawable;
   private String _cachedStatus;
+  private boolean _cancelable = false;
 
   private Resources _resources;
   //endregion
