@@ -45,6 +45,10 @@ public class UIProgressHUD {
     layout.setDataContext(viewModel);
   }
 
+  public boolean isShowing() {
+    return _showing && _showCount > 0;
+  }
+
   public UIProgressHUD show() {
     return show("");
   }
@@ -84,6 +88,8 @@ public class UIProgressHUD {
   }
 
   synchronized public UIProgressHUD show(Drawable drawable, String status) {
+    _showCount++;
+
     if (_cancelable) {
       cancel();
     }
@@ -143,7 +149,12 @@ public class UIProgressHUD {
   }
 
   public void dismiss() {
-    layout.dismiss();
+    if (isShowing()) {
+      layout.dismiss();
+
+      _showCount = 0;
+      _showing = false;
+    }
   }
 
   //region static
@@ -158,6 +169,7 @@ public class UIProgressHUD {
 
   //region internal
   // TODO show more than 2 statuses
+  private int _showCount = 0;
   private boolean _showing = false;
   private CountDownTimer _timer = null;
   private boolean _thenDismiss = true;
