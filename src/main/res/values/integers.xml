@@ -2,4 +2,7 @@
 <resources>
   <integer name="icon_width">32</integer>
   <integer name="icon_height">32</integer>
+
+  <integer name="hud_width">200</integer>
+  <integer name="hud_height">200</integer>
 </resources>

@@ -2,6 +2,8 @@ package tv.inair.progresshud;
 
 import android.graphics.drawable.Drawable;
 
+import inair.view.UIView;
+
 /**
  * <p>
  * Note this class is currently under early design and development.
@@ -10,6 +12,23 @@ import android.graphics.drawable.Drawable;
  * </p>
  */
 public class ViewModel extends inair.data.ViewModel {
+
+  public ViewModel() {
+
+    /**
+     * default usage for LayeredNavigation
+     * @see inair.sdk.R.integer
+     */
+    containerX = 1225;
+    containerY = 167;
+    containerZ = 700;
+
+    containerWidth = 320;
+    containerHeight = 746;
+
+    hudX = (containerWidth - resources.getInteger(R.integer.hud_width)) / 2;
+    hudY = (containerHeight - resources.getInteger(R.integer.hud_height)) / 2;
+  }
 
   private String mMessage;
   private Drawable mIcon;
@@ -23,6 +42,7 @@ public class ViewModel extends inair.data.ViewModel {
     notifyPropertyChanged("message");
   }
 
+  //region Icon
   public Drawable getIcon() {
     return mIcon;
   }
@@ -50,5 +70,110 @@ public class ViewModel extends inair.data.ViewModel {
   public void setIconHeight(float iconHeight) {
     mIconHeight = iconHeight;
     notifyPropertyChanged("iconHeight");
+  }
+  //endregion
+
+  //region Container
+  private UIView container;
+
+  public UIView getContainer() {
+    return container;
+  }
+
+  public void setContainer(UIView container) {
+    this.container = container;
+    setContainerX(container.getPositionX());
+    setContainerY(container.getPositionY());
+    setContainerZ(container.getPositionZ());
+
+    setContainerWidth(container.getWidth());
+    setContainerHeight(container.getHeight());
+
+    setHudX((containerWidth - resources.getInteger(R.integer.hud_width)) / 2);
+    setHudY((containerHeight - resources.getInteger(R.integer.hud_height)) / 2);
+  }
+
+  private float containerX;
+  private float containerY;
+  private float containerZ;
+  private float containerWidth;
+  private float containerHeight;
+
+  public float getContainerX() {
+    return containerX;
+  }
+
+  public void setContainerX(float containerX) {
+    this.containerX = containerX;
+    notifyPropertyChanged("containerX");
+  }
+
+  public float getContainerY() {
+    return containerY;
+  }
+
+  public void setContainerY(float containerY) {
+    this.containerY = containerY;
+    notifyPropertyChanged("containerY");
+  }
+
+  public float getContainerZ() {
+    return containerZ;
+  }
+
+  public void setContainerZ(float containerZ) {
+    this.containerZ = containerZ;
+    notifyPropertyChanged("containerZ");
+  }
+
+  public float getContainerWidth() {
+    return containerWidth;
+  }
+
+  public void setContainerWidth(float containerWidth) {
+    this.containerWidth = containerWidth;
+    notifyPropertyChanged("containerWidth");
+  }
+
+  public float getContainerHeight() {
+    return containerHeight;
+  }
+
+  public void setContainerHeight(float containerHeight) {
+    this.containerHeight = containerHeight;
+    notifyPropertyChanged("containerHeight");
+  }
+  //endregion
+
+  //region HUD
+  private float hudX;
+  private float hudY;
+
+  public float getHudY() {
+    return hudY;
+  }
+
+  public void setHudY(float hudY) {
+    this.hudY = hudY;
+    notifyPropertyChanged("hudY");
+  }
+
+  public float getHudX() {
+    return hudX;
+  }
+
+  public void setHudX(float hudX) {
+    this.hudX = hudX;
+    notifyPropertyChanged("hudX");
+  }
+
+  //endregion
+
+  public float getIconY() {
+    if (mMessage.isEmpty()) {
+      return 84f;
+    } else {
+      return 40f;
+    }
   }
 }

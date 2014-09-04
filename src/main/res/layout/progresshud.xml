@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <UIViewGroup xmlns:ui="http://schemas.android.com/apk/res-auto"
-             ui:positionX="@integer/layered_x_navigator"
-             ui:positionY="@integer/layered_y_navigator"
-             ui:positionZ="@integer/layered_first_layer_z"
-             ui:width="@integer/layered_layer_width"
-             ui:height="@integer/layered_layer_height"
+             ui:positionX="{ Binding Path = 'containerX' }"
+             ui:positionY="{ Binding Path = 'containerY' }"
+             ui:positionZ="{ Binding Path = 'containerZ' }"
+             ui:width="{ Binding Path = 'containerWidth' }"
+             ui:height="{ Binding Path = 'containerHeight' }"
              ui:isFocusable="true">
 
   <UIViewGroup
-    ui:width="200"
-    ui:height="200"
-    ui:positionX="60"
-    ui:positionY="273"
+    ui:width="@integer/hud_width"
+    ui:height="@integer/hud_height"
+    ui:positionX="{ Binding Path = 'hudX' }"
+    ui:positionY="{ Binding Path = 'hudY' }"
 
     ui:boundToContentSize="true"
     >
@@ -28,7 +28,7 @@
       ui:width="32"
       ui:height="32"
       ui:positionX="84"
-      ui:positionY="40"
+      ui:positionY="{ Binding Path = 'iconY' }"
       ui:id="@+id/spinner"
       ui:src=" { Binding Path = 'icon' } "
       />

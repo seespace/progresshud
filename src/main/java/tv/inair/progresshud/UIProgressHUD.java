@@ -10,6 +10,7 @@ import inair.app.IARootLayout;
 import inair.app.PresentParam;
 import inair.tv.TVScreen;
 import inair.utils.Transform;
+import inair.view.UIView;
 import inair.view.UIViewDescriptor;
 
 /**
@@ -43,6 +44,10 @@ public class UIProgressHUD {
     viewModel = new ViewModel();
     layout = new Layout();
     layout.setDataContext(viewModel);
+  }
+
+  public void setContainerView(UIView container) {
+    viewModel.setContainer(container);
   }
 
   public boolean isShowing() {
