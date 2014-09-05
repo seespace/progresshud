@@ -40,6 +40,7 @@ public class ViewModel extends inair.data.ViewModel {
   public void setMessage(String message) {
     mMessage = message;
     notifyPropertyChanged("message");
+    notifyPropertyChanged("iconY");
   }
 
   //region Icon
