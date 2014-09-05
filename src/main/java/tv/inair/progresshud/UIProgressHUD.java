@@ -74,8 +74,16 @@ public class UIProgressHUD {
     return show(R.drawable.error, status);
   }
 
+  public UIProgressHUD showError(int statusResId) {
+    return showError(_resources.getString(statusResId));
+  }
+
   public UIProgressHUD showSuccess(String status) {
     return show(R.drawable.success, status);
+  }
+
+  public UIProgressHUD showSuccess(int statusResId) {
+    return showSuccess(_resources.getString(statusResId));
   }
 
   public UIProgressHUD show(int resId, String status) {
@@ -102,7 +110,7 @@ public class UIProgressHUD {
     if (!_thenDismiss && _timer != null) {
       _cachedDrawable = drawable;
       _cachedStatus = status;
-    } else {
+    } else  {
       showImpl(drawable, status);
     }
 
@@ -118,6 +126,7 @@ public class UIProgressHUD {
       UIViewDescriptor child = UIViewDescriptor.create(1f, Transform.Identity().build(), false);
       UIViewDescriptor parent = UIViewDescriptor.create(.1f, Transform.Identity().build(), false);
       container.present(layout, PresentParam.create().startingState(starting).childState(child).parentState(parent).screenState(TVScreen.DefaultState.APP_OPENED).duration(1000));
+
     }
 
     _showing = true;
@@ -153,13 +162,15 @@ public class UIProgressHUD {
     return this;
   }
 
-  public void dismiss() {
+  public boolean dismiss() {
     if (isShowing()) {
-      layout.dismiss();
-
       _showCount = 0;
       _showing = false;
+
+
+      return layout.dismiss();
     }
+    return false;
   }
 
   //region static
@@ -173,7 +184,7 @@ public class UIProgressHUD {
   //endregion
 
   //region internal
-  // TODO show more than 2 statuses
+  // TODO implement state machine
   private int _showCount = 0;
   private boolean _showing = false;
   private CountDownTimer _timer = null;
