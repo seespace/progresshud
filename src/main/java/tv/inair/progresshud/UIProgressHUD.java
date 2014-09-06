@@ -8,7 +8,6 @@ import inair.app.IAChildLayout;
 import inair.app.IALayout;
 import inair.app.IARootLayout;
 import inair.app.PresentParam;
-import inair.tv.TVScreen;
 import inair.utils.Transform;
 import inair.view.UIView;
 import inair.view.UIViewDescriptor;
@@ -110,7 +109,7 @@ public class UIProgressHUD {
     if (!_thenDismiss && _timer != null) {
       _cachedDrawable = drawable;
       _cachedStatus = status;
-    } else  {
+    } else {
       showImpl(drawable, status);
     }
 
@@ -125,8 +124,15 @@ public class UIProgressHUD {
       UIViewDescriptor starting = UIViewDescriptor.create(0f, Transform.Identity().build(), true);
       UIViewDescriptor child = UIViewDescriptor.create(1f, Transform.Identity().build(), false);
       UIViewDescriptor parent = UIViewDescriptor.create(.1f, Transform.Identity().build(), false);
-      container.present(layout, PresentParam.create().startingState(starting).childState(child).parentState(parent).screenState(TVScreen.DefaultState.APP_OPENED).duration(1000));
 
+      PresentParam param = PresentParam.create()
+        .startingState(starting)
+        .childState(child)
+        .parentState(parent)
+        .keepTVScreenState()
+        .duration(1000);
+
+      container.present(layout, param);
     }
 
     _showing = true;
