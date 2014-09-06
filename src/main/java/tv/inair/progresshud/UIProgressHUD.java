@@ -4,10 +4,17 @@ import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.CountDownTimer;
 
+import java.util.HashMap;
+
+import inair.app.DismissParam;
 import inair.app.IAChildLayout;
 import inair.app.IALayout;
 import inair.app.IARootLayout;
 import inair.app.PresentParam;
+import inair.event.AnonymousHandler;
+import inair.event.Delegate;
+import inair.input.SwipeEventArgs;
+import inair.input.TouchEventArgs;
 import inair.utils.Transform;
 import inair.view.UIView;
 import inair.view.UIViewDescriptor;
@@ -23,30 +30,19 @@ public class UIProgressHUD {
 
   public static final int DEFAULT_SHOW_DURATION = 3000;
 
-  public final IALayout container;
-  public final Layout layout;
-  public final ViewModel viewModel;
+  private IALayout container;
+  private Layout layout;
+  private ViewModel viewModel;
 
-  public UIProgressHUD(IAChildLayout container) {
-    this.container = container;
-    _resources = container.getResources();
+  private static final UIProgressHUD instance = new UIProgressHUD();
 
+  private UIProgressHUD() {
     viewModel = new ViewModel();
-    layout = new Layout();
-    layout.setDataContext(viewModel);
   }
 
-  public UIProgressHUD(IARootLayout container) {
-    this.container = container;
-    _resources = container.getResources();
-
-    viewModel = new ViewModel();
-    layout = new Layout();
-    layout.setDataContext(viewModel);
-  }
-
-  public void setContainerView(UIView container) {
+  public UIProgressHUD withContainerView(UIView container) {
     viewModel.setContainer(container);
+    return this;
   }
 
   public boolean isShowing() {
@@ -89,22 +85,22 @@ public class UIProgressHUD {
     return show(_resources.getDrawable(resId), status);
   }
 
-  public UIProgressHUD cancel() {
+  public UIProgressHUD reset() {
     _showing = false;
-    _timer = null;
     _thenDismiss = true;
     _cachedDrawable = null;
     _cachedStatus = null;
     _cancelable = false;
+
+    if (_timer != null) {
+      _timer.cancel();
+    }
+    _timer = null;
     return this;
   }
 
   synchronized public UIProgressHUD show(Drawable drawable, String status) {
     _showCount++;
-
-    if (_cancelable) {
-      cancel();
-    }
 
     if (!_thenDismiss && _timer != null) {
       _cachedDrawable = drawable;
@@ -130,9 +126,11 @@ public class UIProgressHUD {
         .childState(child)
         .parentState(parent)
         .keepTVScreenState()
-        .duration(1000);
+        .duration(500);
 
       container.present(layout, param);
+    } else {
+      layout.spin();
     }
 
     _showing = true;
@@ -169,23 +167,88 @@ public class UIProgressHUD {
   }
 
   public boolean dismiss() {
-    if (isShowing()) {
-      _showCount = 0;
-      _showing = false;
+    return dismiss(false);
+  }
 
-
-      return layout.dismiss();
+  public boolean dismiss(boolean force) {
+    if (layout == null) {
+      return true;
     }
-    return false;
+
+    _showCount = 0;
+    _showing = false;
+
+    DismissParam param = new DismissParam();
+
+    if (force) {
+      param.duration(1);
+    }
+
+    return layout.dismiss(param);
   }
 
   //region static
   public static UIProgressHUD with(IAChildLayout container) {
-    return new UIProgressHUD(container);
+    if (instance.container == container && instance._showing) {
+      instance.reset();
+      return instance;
+    }
+    instance.container = container;
+    instance._resources = container.getResources();
+    instance.setup();
+    return instance;
   }
 
   public static UIProgressHUD with(IARootLayout container) {
-    return new UIProgressHUD(container);
+    if (instance.container == container && instance._showing) {
+      instance.reset();
+      return instance;
+    }
+    instance.container = container;
+    instance._resources = container.getResources();
+    instance.setup();
+    return instance;
+  }
+
+  private void setup() {
+    instance.dismiss(true);
+
+    instance.layout = new Layout();
+    instance.layout.setDataContext(instance.viewModel);
+
+    instance.reset();
+
+    instance.layout.didPresent.addHandler(didPresent);
+  }
+
+  Delegate didPresent = Delegate.createHandler(new AnonymousHandler<Void>() {
+    @Override
+    public void handler(Object sender, Void args) {
+      Delegate<TouchEventArgs> doubleTapHandler = doubleTapHandlerMap.get(instance.container);
+      if (doubleTapHandler != null) {
+        instance.layout.addHandlerForUIView(UIView.DoubleTapEvent, doubleTapHandler);
+      }
+
+      Delegate<SwipeEventArgs> swipeHandler = swipeHandlerMap.get(instance.container);
+      if (swipeHandler != null) {
+        instance.layout.addHandlerForUIView(UIView.SwipeEvent, swipeHandler);
+      }
+    }
+  }, Void.class);
+  //endregion
+
+  //region events
+  final HashMap<IALayout, Delegate<TouchEventArgs>> doubleTapHandlerMap = new HashMap<>();
+  final HashMap<IALayout, Delegate<SwipeEventArgs>> swipeHandlerMap = new HashMap<>();
+
+  public UIProgressHUD onDoubleTap(Delegate<TouchEventArgs> handler) {
+    doubleTapHandlerMap.put(container, handler);
+    return this;
+  }
+
+  public UIProgressHUD onSwipe(Delegate<SwipeEventArgs> handler) {
+    swipeHandlerMap.put(container, handler);
+    return this;
   }
   //endregion
 

@@ -32,9 +32,16 @@ public class Layout extends IAChildLayout {
     @Override
     public void handler(Object sender, PropertyChangedEventArgs args) {
       if (args.propertyName.equals("icon")) {
-        ((UIImageView) findUIViewById(R.id.spinner)).start();
+        spin();
       }
     }
   }, PropertyChangedEventArgs.class);
+
+  public void spin() {
+    UIImageView icon = ((UIImageView) findUIViewById(R.id.spinner));
+    if (icon != null) {
+      icon.start();
+    }
+  }
 
 }
