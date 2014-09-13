@@ -117,9 +117,9 @@ public class UIProgressHUD {
     viewModel.setMessage(status);
 
     if (!_showing) {
-      UIViewDescriptor starting = UIViewDescriptor.create(0f, Transform.Identity().build(), true);
-      UIViewDescriptor child = UIViewDescriptor.create(1f, Transform.Identity().build(), false);
-      UIViewDescriptor parent = UIViewDescriptor.create(.1f, Transform.Identity().build(), false);
+      UIViewDescriptor starting = UIViewDescriptor.create(0f, Transform.fromIdentity().build(), true);
+      UIViewDescriptor child = UIViewDescriptor.create(1f, Transform.fromIdentity().build(), false);
+      UIViewDescriptor parent = UIViewDescriptor.create(.1f, Transform.fromIdentity().build(), false);
 
       PresentParam param = PresentParam.create()
         .startingState(starting)
