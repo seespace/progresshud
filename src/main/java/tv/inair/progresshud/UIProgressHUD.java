@@ -96,6 +96,11 @@ public class UIProgressHUD {
       _timer.cancel();
     }
     _timer = null;
+
+    if (viewModel != null) {
+      viewModel.setIconWidth(32);
+      viewModel.setIconHeight(32);
+    }
     return this;
   }
 
@@ -109,6 +114,16 @@ public class UIProgressHUD {
       showImpl(drawable, status);
     }
 
+    return this;
+  }
+
+  public UIProgressHUD iconWidth(float width) {
+    viewModel.setIconWidth(width);
+    return this;
+  }
+
+  public UIProgressHUD iconHeight(float height) {
+    viewModel.setIconHeight(height);
     return this;
   }
 

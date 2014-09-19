@@ -25,22 +25,29 @@
       />
 
     <UIImageView
-      ui:width="32"
-      ui:height="32"
-      ui:positionX="84"
+      ui:width="{ Binding Path = 'iconWidth' }"
+      ui:height="{ Binding Path = 'iconHeight' }"
+      ui:positionX="{ Binding Path = 'iconX' }"
       ui:positionY="{ Binding Path = 'iconY' }"
       ui:id="@+id/spinner"
       ui:src=" { Binding Path = 'icon' } "
       />
 
-    <UITextView
+    <UIViewGroup
+      ui:isScrollable="true"
+      ui:contentCenterVertical="true"
       ui:width="160"
-      ui:fontSize="24"
+      ui:height="100"
       ui:positionX="20"
-      ui:positionY="100"
-      ui:textAlignment="center"
-      ui:text=" { Binding Path = 'message' }"
-      />
+      ui:positionY="100">
+
+      <UITextView
+        ui:width="160"
+        ui:textAlignment="center"
+        ui:text=" { Binding Path = 'message' }"
+        />
+    </UIViewGroup>
+
 
   </UIViewGroup>
 

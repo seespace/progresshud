@@ -40,6 +40,7 @@ public class ViewModel extends inair.data.ViewModel {
   public void setMessage(String message) {
     mMessage = message;
     notifyPropertyChanged("message");
+    notifyPropertyChanged("iconX");
     notifyPropertyChanged("iconY");
   }
 
@@ -176,5 +177,9 @@ public class ViewModel extends inair.data.ViewModel {
     } else {
       return 40f;
     }
+  }
+
+  public float getIconX() {
+    return (200 - mIconWidth) / 2;
   }
 }
