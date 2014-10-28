@@ -137,7 +137,7 @@ public class UIProgressHUD {
       UIViewDescriptor parent = UIViewDescriptor.create(.1f, Transform.fromIdentity().build(), false);
 
       PresentParam param = PresentParam.create()
-        .startingState(starting)
+        .childStartingState(starting)
         .childState(child)
         .parentState(parent)
         .keepTVScreenState()
