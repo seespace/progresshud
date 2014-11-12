@@ -7,9 +7,9 @@ import android.os.CountDownTimer;
 import java.util.HashMap;
 
 import inair.app.DismissParam;
-import inair.app.IAChildLayout;
 import inair.app.IALayout;
 import inair.app.IARootLayout;
+import inair.app.InAiRApplication;
 import inair.app.PresentParam;
 import inair.event.AnonymousHandler;
 import inair.event.Delegate;
@@ -105,6 +105,9 @@ public class UIProgressHUD {
   }
 
   synchronized public UIProgressHUD show(Drawable drawable, String status) {
+    if (!container.isAppeared()) {
+      return this;
+    }
     _showCount++;
 
     if (!_thenDismiss && _timer != null) {
@@ -203,13 +206,13 @@ public class UIProgressHUD {
   }
 
   //region static
-  public static UIProgressHUD with(IAChildLayout container) {
+  public static UIProgressHUD with(IALayout container) {
     if (instance.container == container && instance._showing) {
       instance.reset();
       return instance;
     }
     instance.container = container;
-    instance._resources = container.getResources();
+    instance._resources = InAiRApplication.getAppContext().getResources();
     instance.setup();
     return instance;
   }
