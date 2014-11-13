@@ -172,7 +172,7 @@ public class ViewModel extends inair.data.ViewModel {
   //endregion
 
   public float getIconY() {
-    if (mMessage.isEmpty()) {
+    if (mMessage != null && mMessage.isEmpty()) {
       return 84f;
     } else {
       return 40f;
