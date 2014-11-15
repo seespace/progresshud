@@ -196,6 +196,10 @@ public class UIProgressHUD {
     _showCount = 0;
     _showing = false;
 
+    if (_timer != null) {
+      _timer.cancel();
+    }
+
     DismissParam param = new DismissParam();
 
     if (force) {
