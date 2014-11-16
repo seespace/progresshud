@@ -105,7 +105,7 @@ public class UIProgressHUD {
   }
 
   synchronized public UIProgressHUD show(Drawable drawable, String status) {
-    if (!container.isAppeared()) {
+    if (!container.isInitialized()) {
       return this;
     }
     _showCount++;
