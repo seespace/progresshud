@@ -140,11 +140,11 @@ public class UIProgressHUD {
       UIViewDescriptor parent = UIViewDescriptor.create(.1f, Transform.fromIdentity().build(), false);
 
       PresentParam param = PresentParam.create()
-        .childStartingState(starting)
-        .childState(child)
-        .parentState(parent)
-        .keepTVScreenState()
-        .duration(500);
+          .childStartingState(starting)
+          .childState(child)
+          .parentState(parent)
+          .keepTVScreenState()
+          .duration(500);
 
       container.present(layout, param);
     } else {
@@ -263,12 +263,52 @@ public class UIProgressHUD {
   final HashMap<IALayout, Delegate<TouchEventArgs>> doubleTapHandlerMap = new HashMap<>();
   final HashMap<IALayout, Delegate<SwipeEventArgs>> swipeHandlerMap = new HashMap<>();
 
+  public UIProgressHUD terminateAppOnSwipeLeft() {
+    terminateAppOnSwipe(SwipeEventArgs.Direction.Left);
+    return this;
+  }
+
+  public UIProgressHUD terminateAppOnSwipe(SwipeEventArgs.Direction direction) {
+    _onSwipe(makeDelegateWith(direction));
+    return this;
+  }
+
+  private Delegate<SwipeEventArgs> makeDelegateWith(final SwipeEventArgs.Direction directionAction) {
+    return Delegate.createHandler(new AnonymousHandler<SwipeEventArgs>() {
+      @Override
+      public void handler(Object sender, SwipeEventArgs args) {
+        if (args.direction == directionAction) {
+          dismiss(true);
+          InAiRApplication.terminateApp();
+        }
+      }
+    }, SwipeEventArgs.class);
+  }
+
   public UIProgressHUD onDoubleTap(Delegate<TouchEventArgs> handler) {
+    _onDoubleTap(handler);
+    return this;
+  }
+
+  /**
+   * Deprecated, should use {@link #terminateAppOnSwipe(inair.input.SwipeEventArgs.Direction)}
+   *
+   * @param handler
+   *
+   * @return
+   */
+  @Deprecated
+  public UIProgressHUD onSwipe(Delegate<SwipeEventArgs> handler) {
+    _onSwipe(handler);
+    return this;
+  }
+
+  private UIProgressHUD _onDoubleTap(Delegate<TouchEventArgs> handler) {
     doubleTapHandlerMap.put(container, handler);
     return this;
   }
 
-  public UIProgressHUD onSwipe(Delegate<SwipeEventArgs> handler) {
+  private UIProgressHUD _onSwipe(Delegate<SwipeEventArgs> handler) {
     swipeHandlerMap.put(container, handler);
     return this;
   }
