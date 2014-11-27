@@ -290,6 +290,11 @@ public class UIProgressHUD {
     return this;
   }
 
+  public UIProgressHUD onDismiss(Delegate<Void> handler) {
+    layout.didDismiss.addHandler(handler);
+    return this;
+  }
+
   /**
    * Deprecated, should use {@link #terminateAppOnSwipe(inair.input.SwipeEventArgs.Direction)}
    *
