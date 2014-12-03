@@ -15,9 +15,24 @@ android {
     versionCode 1
     versionName "1.0"
   }
+
+  version '0.1.0'
 }
 
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
-  compile library(':inair')
+  compile library(':inair', false)
+}
+
+apply plugin: 'maven'
+
+uploadArchives {
+  repositories.mavenDeployer {
+    repository(url: "file://${file("${repo_path}").absolutePath}")
+    pom.project {
+      groupId "${extra_groupId}"
+      artifactId project.name
+      version project.version
+    }
+  }
 }
