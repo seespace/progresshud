@@ -8,6 +8,7 @@ import java.util.HashMap;
 
 import inair.app.DismissParam;
 import inair.app.IALayout;
+import inair.app.IANavigation;
 import inair.app.IARootLayout;
 import inair.app.InAiRApplication;
 import inair.app.PresentParam;
@@ -146,7 +147,7 @@ public class UIProgressHUD {
           .keepTVScreenState()
           .duration(500);
 
-      container.present(layout, param);
+      ((IANavigation) container).present(layout, param);
     } else {
       layout.spin();
     }
