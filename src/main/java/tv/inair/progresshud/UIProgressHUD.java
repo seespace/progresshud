@@ -7,12 +7,12 @@ import android.os.CountDownTimer;
 import java.util.HashMap;
 
 import inair.app.DismissParam;
-import inair.app.IALayout;
 import inair.app.IANavigation;
 import inair.app.InAiRApplication;
 import inair.app.PresentParam;
 import inair.event.AnonymousHandler;
 import inair.event.Delegate;
+import inair.exception.IllegalArgumentNullException;
 import inair.input.SwipeEventArgs;
 import inair.input.TouchEventArgs;
 import inair.utils.Transform;
@@ -28,20 +28,41 @@ import inair.view.UIViewDescriptor;
  */
 public class UIProgressHUD {
 
-  public static final int DEFAULT_SHOW_DURATION = 3000;
+  private IANavigation container;
+  final HashMap<String, Delegate<TouchEventArgs>> doubleTapHandlerMap = new HashMap<>();
+  final HashMap<String, Delegate<SwipeEventArgs>> swipeHandlerMap = new HashMap<>();
 
-  private IALayout container;
-  private Layout layout;
+  private HUDView layout;
   private ViewModel viewModel;
 
   private static final UIProgressHUD instance = new UIProgressHUD();
 
   private UIProgressHUD() {
+    _resources = InAiRApplication.getAppContext().getResources();
     viewModel = new ViewModel();
   }
 
-  public UIProgressHUD withContainerView(UIView container) {
-    viewModel.setContainer(container);
+  public static UIProgressHUD with(IANavigation container) {
+    if (container == null) {
+      throw new IllegalArgumentNullException("container");
+    }
+    if (instance.container == container && instance._showing) {
+      instance.reset();
+      return instance;
+    }
+
+    instance.setup(container);
+    return instance;
+  }
+
+  //region API
+  public UIProgressHUD iconWidth(float width) {
+    viewModel.setIconWidth(width);
+    return this;
+  }
+
+  public UIProgressHUD iconHeight(float height) {
+    viewModel.setIconHeight(height);
     return this;
   }
 
@@ -85,25 +106,6 @@ public class UIProgressHUD {
     return show(_resources.getDrawable(resId), status);
   }
 
-  public UIProgressHUD reset() {
-    _showing = false;
-    _thenDismiss = true;
-    _cachedDrawable = null;
-    _cachedStatus = null;
-    _cancelable = false;
-
-    if (_timer != null) {
-      _timer.cancel();
-    }
-    _timer = null;
-
-    if (viewModel != null) {
-      viewModel.setIconWidth(32);
-      viewModel.setIconHeight(32);
-    }
-    return this;
-  }
-
   synchronized public UIProgressHUD show(Drawable drawable, String status) {
     if (!container.isInitialized()) {
       return this;
@@ -120,17 +122,10 @@ public class UIProgressHUD {
     return this;
   }
 
-  public UIProgressHUD iconWidth(float width) {
-    viewModel.setIconWidth(width);
-    return this;
-  }
-
-  public UIProgressHUD iconHeight(float height) {
-    viewModel.setIconHeight(height);
-    return this;
-  }
-
   synchronized private void showImpl(Drawable drawable, String status) {
+    if (!ensureContainer()) {
+      return;
+    }
     viewModel.setIcon(drawable);
     viewModel.setMessage(status);
 
@@ -146,15 +141,40 @@ public class UIProgressHUD {
           .keepTVScreenState()
           .duration(500);
 
-      ((IANavigation) container).present(layout, param);
+      container.present(layout, param);
     } else {
       layout.spin();
     }
 
     _showing = true;
-
     _cancelable = true;
   }
+
+  public boolean dismiss() {
+    return dismiss(false);
+  }
+
+  public boolean dismiss(boolean force) {
+    _showCount = 0;
+    _showing = false;
+
+    if (_timer != null) {
+      _timer.cancel();
+    }
+
+    if (layout == null || !ensureContainer()) {
+      return true;
+    }
+
+    // clean up
+    layout.setDataContext(null);
+    doubleTapHandlerMap.remove(container.getClass().getName());
+    swipeHandlerMap.remove(container.getClass().getName());
+    container = null;
+    return force ? layout.dismiss(FORCE_PARAM) : layout.dismiss();
+  }
+
+  private static final DismissParam FORCE_PARAM = DismissParam.create().duration(1);
 
   public UIProgressHUD in(long ms) {
     _timer = new CountDownTimer(ms, ms) {
@@ -183,86 +203,9 @@ public class UIProgressHUD {
     _cancelable = false;
     return this;
   }
-
-  public boolean dismiss() {
-    return dismiss(false);
-  }
-
-  public boolean dismiss(boolean force) {
-    if (layout == null) {
-      return true;
-    }
-
-    _showCount = 0;
-    _showing = false;
-
-    if (_timer != null) {
-      _timer.cancel();
-    }
-
-    DismissParam param = new DismissParam();
-
-    if (force) {
-      param.duration(1);
-    }
-
-    return layout.dismiss(param);
-  }
-
-  //region static
-  public static UIProgressHUD with(IALayout container) {
-    if (instance.container == container && instance._showing) {
-      instance.reset();
-      return instance;
-    }
-    instance.container = container;
-    instance._resources = InAiRApplication.getAppContext().getResources();
-    instance.setup();
-    return instance;
-  }
-
-//  public static UIProgressHUD with(IARootLayout container) {
-//    if (instance.container == container && instance._showing) {
-//      instance.reset();
-//      return instance;
-//    }
-//    instance.container = container;
-//    instance._resources = container.getResources();
-//    instance.setup();
-//    return instance;
-//  }
-
-  private void setup() {
-    instance.dismiss(true);
-
-    instance.layout = new Layout();
-    instance.layout.setDataContext(instance.viewModel);
-
-    instance.reset();
-
-    instance.layout.didPresent.addHandler(didPresent);
-  }
-
-  final Delegate<Void> didPresent = Delegate.createHandler(new AnonymousHandler<Void>() {
-    @Override
-    public void handler(Object sender, Void args) {
-      Delegate<TouchEventArgs> doubleTapHandler = doubleTapHandlerMap.get(instance.container);
-      if (doubleTapHandler != null) {
-        instance.layout.addHandlerForUIView(UIView.DoubleTapEvent, doubleTapHandler);
-      }
-
-      Delegate<SwipeEventArgs> swipeHandler = swipeHandlerMap.get(instance.container);
-      if (swipeHandler != null) {
-        instance.layout.addHandlerForUIView(UIView.SwipeEvent, swipeHandler);
-      }
-    }
-  }, Void.class);
   //endregion
 
-  //region events
-  final HashMap<IALayout, Delegate<TouchEventArgs>> doubleTapHandlerMap = new HashMap<>();
-  final HashMap<IALayout, Delegate<SwipeEventArgs>> swipeHandlerMap = new HashMap<>();
-
+  //region Events
   public UIProgressHUD terminateAppOnSwipeLeft() {
     terminateAppOnSwipe(SwipeEventArgs.Direction.Left);
     return this;
@@ -290,36 +233,82 @@ public class UIProgressHUD {
     return this;
   }
 
-  public UIProgressHUD onDismiss(Delegate<Void> handler) {
-    layout.didDismiss.addHandler(handler);
-    return this;
-  }
-
-  /**
-   * Deprecated, should use {@link #terminateAppOnSwipe(inair.input.SwipeEventArgs.Direction)}
-   *
-   * @param handler
-   *
-   * @return
-   */
-  @Deprecated
-  public UIProgressHUD onSwipe(Delegate<SwipeEventArgs> handler) {
-    _onSwipe(handler);
-    return this;
-  }
+//  public UIProgressHUD onDismiss(Delegate<Void> handler) {
+//    layout.didDismiss.addHandler(handler);
+//    return this;
+//  }
 
   private UIProgressHUD _onDoubleTap(Delegate<TouchEventArgs> handler) {
-    doubleTapHandlerMap.put(container, handler);
+    if (ensureContainer()) {
+      doubleTapHandlerMap.put(container.getClass().getName(), handler);
+    }
     return this;
   }
 
   private UIProgressHUD _onSwipe(Delegate<SwipeEventArgs> handler) {
-    swipeHandlerMap.put(container, handler);
+    if (ensureContainer()) {
+      swipeHandlerMap.put(container.getClass().getName(), handler);
+    }
     return this;
+  }
+
+  private boolean ensureContainer() {
+    if (container == null) {
+      return false;
+    }
+    return true;
   }
   //endregion
 
-  //region internal
+  //region Internal
+  private void setup(IANavigation container) {
+    instance.dismiss(true);
+
+    // setup for new hud
+    instance.container = container;
+
+    instance.layout = new HUDView();
+    instance.viewModel.setContainer(container.getRootView());
+    instance.layout.setDataContext(instance.viewModel);
+
+    instance.reset();
+
+    instance.layout.didPresent.addHandler(Delegate.create(this, "onHUDPresented", Void.class));
+  }
+
+  private UIProgressHUD reset() {
+    _showing = false;
+    _thenDismiss = true;
+    _cachedDrawable = null;
+    _cachedStatus = null;
+    _cancelable = false;
+
+    if (_timer != null) {
+      _timer.cancel();
+    }
+    _timer = null;
+
+    if (viewModel != null) {
+      viewModel.setIconWidth(32);
+      viewModel.setIconHeight(32);
+    }
+    return this;
+  }
+
+  public void onHUDPresented(Object sender, Void args) {
+    if (ensureContainer()) {
+      Delegate<TouchEventArgs> doubleTapHandler = doubleTapHandlerMap.get(container.getClass().getName());
+      if (doubleTapHandler != null) {
+        instance.layout.addHandlerForUIView(UIView.DoubleTapEvent, doubleTapHandler);
+      }
+
+      Delegate<SwipeEventArgs> swipeHandler = swipeHandlerMap.get(container.getClass().getName());
+      if (swipeHandler != null) {
+        instance.layout.addHandlerForUIView(UIView.SwipeEvent, swipeHandler);
+      }
+    }
+  }
+
   // TODO implement state machine
   private int _showCount = 0;
   private boolean _showing = false;

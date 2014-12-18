@@ -4,7 +4,6 @@ import android.os.Bundle;
 
 import inair.app.IAChildLayout;
 import inair.data.PropertyChangedEventArgs;
-import inair.event.AnonymousHandler;
 import inair.event.Delegate;
 import inair.view.UIImageView;
 
@@ -16,7 +15,7 @@ import inair.view.UIImageView;
  * </p>
  */
 @SuppressWarnings("unchecked")
-public class Layout extends IAChildLayout {
+public class HUDView extends IAChildLayout {
 
   @Override
   public void onInitialize(Bundle savedInstanceState) {
@@ -25,17 +24,14 @@ public class Layout extends IAChildLayout {
     ((UIImageView) findUIViewById(R.id.spinner)).start();
 
     ViewModel viewModel = (ViewModel) getDataContext();
-    viewModel.propertyDidChange.addHandler(onPropertyChanged);
+    viewModel.propertyDidChange.addHandler(Delegate.create(this, "onPropertyChanged", PropertyChangedEventArgs.class));
   }
 
-  final Delegate<PropertyChangedEventArgs> onPropertyChanged = Delegate.createHandler(new AnonymousHandler<PropertyChangedEventArgs>() {
-    @Override
-    public void handler(Object sender, PropertyChangedEventArgs args) {
-      if (args.propertyName.equals("icon")) {
-        spin();
-      }
+  public void onPropertyChanged(Object sender, PropertyChangedEventArgs args) {
+    if (args.propertyName.equals("icon")) {
+      spin();
     }
-  }, PropertyChangedEventArgs.class);
+  }
 
   public void spin() {
     UIImageView icon = ((UIImageView) findUIViewById(R.id.spinner));
