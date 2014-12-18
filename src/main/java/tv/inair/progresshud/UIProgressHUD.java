@@ -9,7 +9,6 @@ import java.util.HashMap;
 import inair.app.DismissParam;
 import inair.app.IALayout;
 import inair.app.IANavigation;
-import inair.app.IARootLayout;
 import inair.app.InAiRApplication;
 import inair.app.PresentParam;
 import inair.event.AnonymousHandler;
@@ -222,16 +221,16 @@ public class UIProgressHUD {
     return instance;
   }
 
-  public static UIProgressHUD with(IARootLayout container) {
-    if (instance.container == container && instance._showing) {
-      instance.reset();
-      return instance;
-    }
-    instance.container = container;
-    instance._resources = container.getResources();
-    instance.setup();
-    return instance;
-  }
+//  public static UIProgressHUD with(IARootLayout container) {
+//    if (instance.container == container && instance._showing) {
+//      instance.reset();
+//      return instance;
+//    }
+//    instance.container = container;
+//    instance._resources = container.getResources();
+//    instance.setup();
+//    return instance;
+//  }
 
   private void setup() {
     instance.dismiss(true);
@@ -244,7 +243,7 @@ public class UIProgressHUD {
     instance.layout.didPresent.addHandler(didPresent);
   }
 
-  Delegate didPresent = Delegate.createHandler(new AnonymousHandler<Void>() {
+  final Delegate<Void> didPresent = Delegate.createHandler(new AnonymousHandler<Void>() {
     @Override
     public void handler(Object sender, Void args) {
       Delegate<TouchEventArgs> doubleTapHandler = doubleTapHandlerMap.get(instance.container);
