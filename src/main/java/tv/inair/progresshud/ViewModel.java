@@ -3,6 +3,7 @@ package tv.inair.progresshud;
 import android.graphics.drawable.Drawable;
 
 import inair.view.UILayeredNavigationView;
+import inair.view.UILayeredViewItem;
 import inair.view.UIView;
 
 /**
@@ -77,16 +78,8 @@ public class ViewModel extends inair.data.ViewModel {
   //endregion
 
   //region Container
-  private UIView container;
-
-  public UIView getContainer() {
-    return container;
-  }
-
   public void setContainer(UIView container) {
-    this.container = container;
-
-    if (container instanceof UILayeredNavigationView) {
+    if (container instanceof UILayeredNavigationView || container instanceof UILayeredViewItem) {
       setContainerX(containerX);
       setContainerY(containerY);
       setContainerZ(containerZ);
