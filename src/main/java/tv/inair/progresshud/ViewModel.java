@@ -2,6 +2,7 @@ package tv.inair.progresshud;
 
 import android.graphics.drawable.Drawable;
 
+import inair.view.UILayeredNavigationView;
 import inair.view.UIView;
 
 /**
@@ -84,12 +85,22 @@ public class ViewModel extends inair.data.ViewModel {
 
   public void setContainer(UIView container) {
     this.container = container;
-    setContainerX(container.getPositionX());
-    setContainerY(container.getPositionY());
-    setContainerZ(container.getPositionZ());
 
-    setContainerWidth(container.getWidth());
-    setContainerHeight(container.getHeight());
+    if (container instanceof UILayeredNavigationView) {
+      setContainerX(containerX);
+      setContainerY(containerY);
+      setContainerZ(containerZ);
+
+      setContainerWidth(containerWidth);
+      setContainerHeight(containerHeight);
+    } else {
+      setContainerX(container.getPositionX());
+      setContainerY(container.getPositionY());
+      setContainerZ(container.getPositionZ());
+
+      setContainerWidth(container.getWidth());
+      setContainerHeight(container.getHeight());
+    }
 
     setHudX((containerWidth - resources.getInteger(R.integer.hud_width)) / 2);
     setHudY((containerHeight - resources.getInteger(R.integer.hud_height)) / 2);
