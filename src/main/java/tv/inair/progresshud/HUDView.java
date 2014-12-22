@@ -3,9 +3,6 @@ package tv.inair.progresshud;
 import android.os.Bundle;
 
 import inair.app.IAChildLayout;
-import inair.data.PropertyChangedEventArgs;
-import inair.event.Delegate;
-import inair.view.UIImageView;
 
 /**
  * <p>
@@ -20,24 +17,5 @@ public class HUDView extends IAChildLayout {
   @Override
   public void onInitialize(Bundle savedInstanceState) {
     setRootContentView(R.layout.progresshud);
-
-    ((UIImageView) findUIViewById(R.id.spinner)).start();
-
-    ViewModel viewModel = (ViewModel) getDataContext();
-    viewModel.propertyDidChange.addHandler(Delegate.create(this, "onPropertyChanged", PropertyChangedEventArgs.class));
   }
-
-  public void onPropertyChanged(Object sender, PropertyChangedEventArgs args) {
-    if (args.propertyName.equals("icon")) {
-      spin();
-    }
-  }
-
-  public void spin() {
-    UIImageView icon = ((UIImageView) findUIViewById(R.id.spinner));
-    if (icon != null) {
-      icon.start();
-    }
-  }
-
 }

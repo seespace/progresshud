@@ -132,6 +132,10 @@ public class UIProgressHUD {
     return this;
   }
 
+  public static final UIViewDescriptor STARTING_STATE = UIViewDescriptor.create(0f, Transform.fromIdentity().build(), true);
+  public static final UIViewDescriptor CHILD_STATE = UIViewDescriptor.create(1f, Transform.fromIdentity().build(), false);
+  public static final UIViewDescriptor PARENT_STATE = UIViewDescriptor.create(.1f, Transform.fromIdentity().build(), false);
+
   synchronized private void showImpl(Drawable drawable, String status) {
     if (!ensureContainer()) {
       return;
@@ -140,24 +144,22 @@ public class UIProgressHUD {
     viewModel.setMessage(status);
 
     if (!_showing) {
-      UIViewDescriptor starting = UIViewDescriptor.create(0f, Transform.fromIdentity().build(), true);
-      UIViewDescriptor child = UIViewDescriptor.create(1f, Transform.fromIdentity().build(), false);
-      UIViewDescriptor parent = UIViewDescriptor.create(.1f, Transform.fromIdentity().build(), false);
-
       PresentParam param = PresentParam.create()
-          .childStartingState(starting)
-          .childState(child)
-          .parentState(parent)
+          .childStartingState(STARTING_STATE)
+          .childState(CHILD_STATE)
+          .parentState(PARENT_STATE)
           .keepTVScreenState()
+          .disableDefaultDismissGesture()
           .duration(500);
 
+//      if (!_canDismiss) {
+//        param.disableDefaultDismissGesture();
+//      }
+
       container.present(layout, param);
-    } else {
-      layout.spin();
     }
 
     _showing = true;
-    _cancelable = true;
   }
 
   public boolean dismiss() {
@@ -210,7 +212,6 @@ public class UIProgressHUD {
 
   public UIProgressHUD then() {
     _thenDismiss = false;
-    _cancelable = false;
     return this;
   }
   //endregion
@@ -291,7 +292,7 @@ public class UIProgressHUD {
     _thenDismiss = true;
     _cachedDrawable = null;
     _cachedStatus = null;
-    _cancelable = false;
+    _canDismiss = true;
 
     if (_timer != null) {
       _timer.cancel();
@@ -326,7 +327,7 @@ public class UIProgressHUD {
   private boolean _thenDismiss = true;
   private Drawable _cachedDrawable;
   private String _cachedStatus;
-  private boolean _cancelable = false;
+  private boolean _canDismiss = true;
 
   private Resources _resources;
   //endregion
