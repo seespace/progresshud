@@ -17,19 +17,19 @@ public class ViewModel extends inair.data.ViewModel {
 
   public ViewModel() {
 
-    /**
-     * default usage for LayeredNavigation
-     * @see inair.sdk.R.integer
-     */
-    containerX = 1225;
-    containerY = 167;
-    containerZ = 700;
-
-    containerWidth = 320;
-    containerHeight = 746;
-
-    hudX = (containerWidth - resources.getInteger(R.integer.hud_width)) / 2;
-    hudY = (containerHeight - resources.getInteger(R.integer.hud_height)) / 2;
+//    /**
+//     * default usage for LayeredNavigation
+//     * @see inair.sdk.R.integer
+//     */
+//    containerX = 1225;
+//    containerY = 167;
+//    containerZ = 700;
+//
+//    containerWidth = 320;
+//    containerHeight = 746;
+//
+//    hudX = (containerWidth - resources.getInteger(R.integer.hud_width)) / 2;
+//    hudY = (containerHeight - resources.getInteger(R.integer.hud_height)) / 2;
   }
 
   private String mMessage;
@@ -79,13 +79,14 @@ public class ViewModel extends inair.data.ViewModel {
 
   //region Container
   public void setContainer(UIView container) {
+    System.out.println("VIEW: " +container);
     if (container instanceof UILayeredNavigationView || container instanceof UILayeredViewItem) {
-      setContainerX(containerX);
-      setContainerY(containerY);
-      setContainerZ(containerZ);
+      setContainerX(resources.getInteger(R.integer.layered_x_navigator));
+      setContainerY(resources.getInteger(R.integer.layered_y_navigator));
+      setContainerZ(resources.getInteger(R.integer.layered_first_layer_z));
 
-      setContainerWidth(containerWidth);
-      setContainerHeight(containerHeight);
+      setContainerWidth(resources.getInteger(R.integer.layered_layer_width));
+      setContainerHeight(resources.getInteger(R.integer.layered_layer_height));
     } else {
       setContainerX(container.getPositionX());
       setContainerY(container.getPositionY());
@@ -97,6 +98,7 @@ public class ViewModel extends inair.data.ViewModel {
 
     setHudX((containerWidth - resources.getInteger(R.integer.hud_width)) / 2);
     setHudY((containerHeight - resources.getInteger(R.integer.hud_height)) / 2);
+    System.out.println(hudX + " : " + hudY);
   }
 
   private float containerX;

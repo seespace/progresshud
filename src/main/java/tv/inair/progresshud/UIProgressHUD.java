@@ -55,6 +55,17 @@ public class UIProgressHUD {
     return instance;
   }
 
+
+
+  public UIProgressHUD basedOnFrame(UIView view) {
+    System.out.println("UIProgressHUD.basedOnFrame");
+    if (ensureContainer()) {
+
+      viewModel.setContainer(view);
+    }
+    return this;
+  }
+
   //region API
   public UIProgressHUD iconWidth(float width) {
     viewModel.setIconWidth(width);
