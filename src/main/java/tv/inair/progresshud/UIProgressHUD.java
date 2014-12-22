@@ -58,7 +58,6 @@ public class UIProgressHUD {
 
 
   public UIProgressHUD basedOnFrame(UIView view) {
-    System.out.println("UIProgressHUD.basedOnFrame");
     if (ensureContainer()) {
 
       viewModel.setContainer(view);

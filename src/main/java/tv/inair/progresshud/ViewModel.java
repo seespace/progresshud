@@ -79,7 +79,6 @@ public class ViewModel extends inair.data.ViewModel {
 
   //region Container
   public void setContainer(UIView container) {
-    System.out.println("VIEW: " +container);
     if (container instanceof UILayeredNavigationView || container instanceof UILayeredViewItem) {
       setContainerX(resources.getInteger(R.integer.layered_x_navigator));
       setContainerY(resources.getInteger(R.integer.layered_y_navigator));
@@ -98,7 +97,6 @@ public class ViewModel extends inair.data.ViewModel {
 
     setHudX((containerWidth - resources.getInteger(R.integer.hud_width)) / 2);
     setHudY((containerHeight - resources.getInteger(R.integer.hud_height)) / 2);
-    System.out.println(hudX + " : " + hudY);
   }
 
   private float containerX;
