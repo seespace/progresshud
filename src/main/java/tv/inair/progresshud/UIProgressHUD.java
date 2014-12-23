@@ -55,8 +55,6 @@ public class UIProgressHUD {
     return instance;
   }
 
-
-
   public UIProgressHUD basedOnFrame(UIView view) {
     if (ensureContainer()) {
 
@@ -152,9 +150,9 @@ public class UIProgressHUD {
           .disableDefaultDismissGesture()
           .duration(500);
 
-//      if (!_canDismiss) {
-//        param.disableDefaultDismissGesture();
-//      }
+      if (_canDismiss) {
+        layout.currentHud = this;
+      }
 
       container.present(layout, param);
     }
@@ -182,7 +180,6 @@ public class UIProgressHUD {
     layout.setDataContext(null);
     doubleTapHandlerMap.remove(container.getClass().getName());
     swipeHandlerMap.remove(container.getClass().getName());
-    container = null;
     return force ? layout.dismiss(FORCE_PARAM) : layout.dismiss();
   }
 
@@ -212,6 +209,11 @@ public class UIProgressHUD {
 
   public UIProgressHUD then() {
     _thenDismiss = false;
+    return this;
+  }
+
+  public UIProgressHUD dismissable() {
+    _canDismiss = true;
     return this;
   }
   //endregion
@@ -244,10 +246,10 @@ public class UIProgressHUD {
     return this;
   }
 
-//  public UIProgressHUD onDismiss(Delegate<Void> handler) {
-//    layout.didDismiss.addHandler(handler);
-//    return this;
-//  }
+  public UIProgressHUD onDismiss(Delegate<Void> handler) {
+    layout.didDismiss.addHandler(handler);
+    return this;
+  }
 
   private UIProgressHUD _onDoubleTap(Delegate<TouchEventArgs> handler) {
     if (ensureContainer()) {
@@ -261,6 +263,13 @@ public class UIProgressHUD {
       swipeHandlerMap.put(container.getClass().getName(), handler);
     }
     return this;
+  }
+
+  void _hudDismissed(boolean dismissContainer) {
+    if (dismissContainer && ensureContainer()) {
+      container.dismiss();
+    }
+    container = null;
   }
 
   private boolean ensureContainer() {
@@ -283,7 +292,7 @@ public class UIProgressHUD {
     instance.layout.setDataContext(instance.viewModel);
 
     instance.reset();
-
+    _canDismiss = false;
     instance.layout.didPresent.addHandler(Delegate.create(this, "onHUDPresented", Void.class));
   }
 
