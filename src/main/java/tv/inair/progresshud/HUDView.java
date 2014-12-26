@@ -6,6 +6,7 @@ import inair.app.IAChildLayout;
 import inair.event.AnonymousHandler;
 import inair.event.Delegate;
 import inair.input.SwipeEventArgs;
+import inair.view.UIImageView;
 import inair.view.UIView;
 
 /**
@@ -21,12 +22,14 @@ public class HUDView extends IAChildLayout {
   @Override
   public void onInitialize(Bundle savedInstanceState) {
     setRootContentView(R.layout.progresshud);
+    spinner = ((UIImageView) findUIViewById(R.id.spinner));
 
     if (currentHud != null) {
       addHandlerForUIView(UIView.PreviewSwipeEvent, onSwipeToDismiss);
     }
   }
 
+  UIImageView spinner;
   boolean enableCallback;
   UIProgressHUD currentHud;
 
@@ -41,7 +44,13 @@ public class HUDView extends IAChildLayout {
   }, SwipeEventArgs.class);
 
   @Override
+  protected void onPresented() {
+    spinner.start();
+  }
+
+  @Override
   protected void onDismissed() {
+    spinner.stop();
     if (currentHud != null) {
       currentHud._hudDismissed(enableCallback);
     }
