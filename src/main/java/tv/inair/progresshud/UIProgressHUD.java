@@ -130,9 +130,9 @@ public class UIProgressHUD {
     return this;
   }
 
-  public static final UIViewDescriptor STARTING_STATE = UIViewDescriptor.create(0f, Transform.fromIdentity().build(), true);
-  public static final UIViewDescriptor CHILD_STATE = UIViewDescriptor.create(1f, Transform.fromIdentity().build(), false);
-  public static final UIViewDescriptor PARENT_STATE = UIViewDescriptor.create(.1f, Transform.fromIdentity().build(), false);
+  public static final UIViewDescriptor STARTING_STATE = UIViewDescriptor.create().alpha(0f).transform(Transform.fromIdentity().build()).seal();
+  public static final UIViewDescriptor CHILD_STATE = UIViewDescriptor.create().alpha(1f).transform(Transform.fromIdentity().build()).seal();
+  public static final UIViewDescriptor PARENT_STATE = UIViewDescriptor.create().alpha(.1f).transform(Transform.fromIdentity().build()).seal();
 
   synchronized private void showImpl(Drawable drawable, String status) {
     if (!ensureContainer()) {
