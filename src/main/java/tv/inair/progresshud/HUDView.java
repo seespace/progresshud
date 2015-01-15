@@ -44,12 +44,12 @@ public class HUDView extends IAChildLayout {
   }, SwipeEventArgs.class);
 
   @Override
-  protected void onPresented() {
+  protected void onPresented(IAChildLayout parent) {
     spinner.start();
   }
 
   @Override
-  protected void onDismissed() {
+  protected void onDismissed(IAChildLayout parent) {
     spinner.stop();
     if (currentHud != null) {
       currentHud._hudDismissed(enableCallback);
