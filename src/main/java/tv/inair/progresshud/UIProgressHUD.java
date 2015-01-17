@@ -1,11 +1,10 @@
 package tv.inair.progresshud;
 
 import android.content.res.Resources;
+import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import org.jdeferred.DoneCallback;
-import org.jdeferred.FailCallback;
 
 import java.util.HashMap;
 
@@ -33,7 +32,6 @@ import inair.view.UIViewDescriptor;
  */
 public class UIProgressHUD {
 
-  public static final String TAG = "UIProgressHUD";
   private static final long DEFAULT_DURATION = 3000;
 
   private IANavigation container;
@@ -46,16 +44,8 @@ public class UIProgressHUD {
 
   private static final UIProgressHUD instance = new UIProgressHUD();
 
-  private static Drawable LOADING_DRAWABLE;
-  private static Drawable ERROR_DRAWABLE;
-  private static Drawable SUCCESS_DRAWABLE;
-
   private UIProgressHUD() {
     _resources = InAiRApplication.getAppContext().getResources();
-    LOADING_DRAWABLE = _resources.getDrawable(R.anim.spinner);
-    ERROR_DRAWABLE = _resources.getDrawable(R.drawable.error);
-    SUCCESS_DRAWABLE = _resources.getDrawable(R.drawable.success);
-
     viewModel = new ViewModel();
     taskQ.collectionDidChange.addHandler(Delegate.createHandler(onTaskQChanged, CollectionChangedEventArgs.class));
   }
@@ -112,15 +102,11 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD show(int statusResId) {
-    return show(LOADING_DRAWABLE, statusResId);
+    return show(R.anim.spinner, statusResId);
   }
 
   public UIProgressHUD show(String status) {
-    return show(LOADING_DRAWABLE, status);
-  }
-
-  public UIProgressHUD show(Drawable drawable, int statusResId) {
-    return show(drawable, _resources.getString(statusResId));
+    return show(R.anim.spinner, status);
   }
 
   public UIProgressHUD show(int drawableResId, int statusResId) {
@@ -128,7 +114,7 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD showError(String status) {
-    return show(ERROR_DRAWABLE, status);
+    return show(R.drawable.error, status);
   }
 
   public UIProgressHUD showError(int statusResId) {
@@ -136,7 +122,7 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD showSuccess(String status) {
-    return show(SUCCESS_DRAWABLE, status);
+    return show(R.drawable.success, status);
   }
 
   public UIProgressHUD showSuccess(int statusResId) {
@@ -163,13 +149,6 @@ public class UIProgressHUD {
         if (result.isThenDismiss()) {
           dismiss();
         }
-      }
-    });
-
-    task.promise().fail(new FailCallback<String>() {
-      @Override
-      public void onFail(String reason) {
-        Log.d(TAG, "Task cancelled, reason: " + reason);
       }
     });
 
@@ -286,28 +265,26 @@ public class UIProgressHUD {
       if (args.action == CollectionChangedEventArgs.CollectionChangedAction.Add) {
         final Task firstTask = (Task) args.newItems.get(0);
         if (args.newStartingIndex == 0) {
-          if (!layout.isAppeared()) {
-            firstTask.run();
+          firstTask.run();
 
-            PresentParam param = PresentParam.create()
-              .childStartingState(STARTING_STATE)
-              .childState(CHILD_STATE)
-              .parentState(PARENT_STATE)
-              .keepTVScreenState()
-              .disableDefaultDismissGesture()
-              .duration(500);
+          PresentParam param = PresentParam.create()
+            .childStartingState(STARTING_STATE)
+            .childState(CHILD_STATE)
+            .parentState(PARENT_STATE)
+            .keepTVScreenState()
+            .disableDefaultDismissGesture()
+            .duration(500);
 
-            if (_canDismiss) {
-              layout.currentHud = UIProgressHUD.this;
-            }
-            container.present(layout, param);
-
-            layout.spinner.start();
-          } else {
-            layout.spinner.stop();
-            firstTask.run();
-            layout.spinner.start();
+          if (_canDismiss) {
+            layout.currentHud = UIProgressHUD.this;
           }
+          System.out.println("PRESENTED");
+          container.present(layout, param);
+        }
+
+        if (args.newStartingIndex > 0 && taskQ.size() > args.newStartingIndex) {
+          Task lastTask = taskQ.get(args.newStartingIndex - 1);
+          pipeTask(lastTask, firstTask);
         }
 
         for (int i = 0; i < args.newItems.size() - 1; i++) {
@@ -315,29 +292,19 @@ public class UIProgressHUD {
           final Task after = (Task) args.newItems.get(i + 1);
           pipeTask(before, after);
         }
-
-        if (args.newStartingIndex > 0 && taskQ.size() > args.newStartingIndex) {
-          Task lastTask = taskQ.get(args.newStartingIndex - 1);
-          if (lastTask.promise().isPending()) {
-            pipeTask(lastTask, firstTask);
-          } else {
-            layout.spinner.stop();
-            firstTask.run();
-            layout.spinner.start();
-          }
-        }
       }
     }
   };
 
-  private void pipeTask(final Task before, final Task after) {
+  private void pipeTask(Task before, final Task after) {
     before.setThenDismiss(false);
     before.promise().done(new DoneCallback<Task>() {
       @Override
       public void onDone(Task task) {
-        layout.spinner.stop();
         after.run();
-        layout.spinner.start();
+        if (after.getDrawable() instanceof AnimationDrawable) {
+          layout.spinner.start();
+        }
       }
     });
   }
@@ -353,6 +320,7 @@ public class UIProgressHUD {
     instance.layout = new HUDView();
     instance.viewModel.setContainer(container.getRootView());
     instance.layout.setDataContext(instance.viewModel);
+    instance.taskQ.clear();
 
     instance.reset();
     _canDismiss = false;
@@ -366,15 +334,6 @@ public class UIProgressHUD {
       viewModel.setIconWidth(32);
       viewModel.setIconHeight(32);
     }
-
-    for (Task task : instance.taskQ) {
-      if (task.promise().isPending()) {
-        task.cancel();
-      }
-    }
-
-    instance.taskQ.clear();
-
     return this;
   }
 

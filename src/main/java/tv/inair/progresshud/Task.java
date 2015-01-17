@@ -118,13 +118,9 @@ public class Task {
   }
 
   public void cancel() {
-    cancel("User Cancelled");
-  }
-
-  public void cancel(String reason) {
     if (mTimer != null) {
       mTimer.cancel();
     }
-    mDeferredObject.reject(reason);
+    mDeferredObject.reject("User Cancelled");
   }
 }
