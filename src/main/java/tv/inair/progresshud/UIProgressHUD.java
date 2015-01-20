@@ -302,7 +302,9 @@ public class UIProgressHUD {
             }
             container.present(layout, param);
 
-            layout.spinner.start();
+            if (layout.isAppeared()) {
+              layout.spinner.start();
+            }
           } else {
             layout.spinner.stop();
             firstTask.run();
