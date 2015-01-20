@@ -2,7 +2,10 @@ package tv.inair.progresshud;
 
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.CountDownTimer;
+import android.util.Log;
+
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 
 import java.util.HashMap;
 
@@ -10,6 +13,8 @@ import inair.app.DismissParam;
 import inair.app.IANavigation;
 import inair.app.InAiRApplication;
 import inair.app.PresentParam;
+import inair.collection.CollectionChangedEventArgs;
+import inair.collection.ObservableCollection;
 import inair.event.AnonymousHandler;
 import inair.event.Delegate;
 import inair.exception.IllegalArgumentNullException;
@@ -28,25 +33,38 @@ import inair.view.UIViewDescriptor;
  */
 public class UIProgressHUD {
 
+  public static final String TAG = "UIProgressHUD";
+  private static final long DEFAULT_DURATION = 3000;
+
   private IANavigation container;
   final HashMap<String, Delegate<TouchEventArgs>> doubleTapHandlerMap = new HashMap<>();
   final HashMap<String, Delegate<SwipeEventArgs>> swipeHandlerMap = new HashMap<>();
 
   private HUDView layout;
   private ViewModel viewModel;
+  private final ObservableCollection<Task> taskQ = new ObservableCollection<>();
 
   private static final UIProgressHUD instance = new UIProgressHUD();
 
+  private static Drawable LOADING_DRAWABLE;
+  private static Drawable ERROR_DRAWABLE;
+  private static Drawable SUCCESS_DRAWABLE;
+
   private UIProgressHUD() {
     _resources = InAiRApplication.getAppContext().getResources();
+    LOADING_DRAWABLE = _resources.getDrawable(R.anim.spinner);
+    ERROR_DRAWABLE = _resources.getDrawable(R.drawable.error);
+    SUCCESS_DRAWABLE = _resources.getDrawable(R.drawable.success);
+
     viewModel = new ViewModel();
+    taskQ.collectionDidChange.addHandler(Delegate.createHandler(onTaskQChanged, CollectionChangedEventArgs.class));
   }
 
   public static UIProgressHUD with(IANavigation container) {
     if (container == null) {
       throw new IllegalArgumentNullException("container");
     }
-    if (instance.container == container && instance._showing) {
+    if (instance.container == container && instance.isShowing()) {
       instance.reset();
       return instance;
     }
@@ -65,17 +83,28 @@ public class UIProgressHUD {
 
   //region API
   public UIProgressHUD iconWidth(float width) {
-    viewModel.setIconWidth(width);
+    if (!taskQ.isEmpty()) {
+      Task task = taskQ.get(taskQ.size() - 1);
+      task.setIconWidth(width);
+    }
     return this;
   }
 
   public UIProgressHUD iconHeight(float height) {
-    viewModel.setIconHeight(height);
+    if (!taskQ.isEmpty()) {
+      Task task = taskQ.get(taskQ.size() - 1);
+      task.setIconHeight(height);
+    }
     return this;
   }
 
   public boolean isShowing() {
-    return _showing && _showCount > 0;
+    if (taskQ.isEmpty()) {
+      return false;
+    }
+
+    Task task = taskQ.get(taskQ.size() - 1);
+    return task.promise().isPending();
   }
 
   public UIProgressHUD show() {
@@ -83,11 +112,15 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD show(int statusResId) {
-    return show(R.anim.spinner, statusResId);
+    return show(LOADING_DRAWABLE, statusResId);
   }
 
   public UIProgressHUD show(String status) {
-    return show(R.anim.spinner, status);
+    return show(LOADING_DRAWABLE, status);
+  }
+
+  public UIProgressHUD show(Drawable drawable, int statusResId) {
+    return show(drawable, _resources.getString(statusResId));
   }
 
   public UIProgressHUD show(int drawableResId, int statusResId) {
@@ -95,7 +128,7 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD showError(String status) {
-    return show(R.drawable.error, status);
+    return show(ERROR_DRAWABLE, status);
   }
 
   public UIProgressHUD showError(int statusResId) {
@@ -103,7 +136,7 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD showSuccess(String status) {
-    return show(R.drawable.success, status);
+    return show(SUCCESS_DRAWABLE, status);
   }
 
   public UIProgressHUD showSuccess(int statusResId) {
@@ -118,14 +151,27 @@ public class UIProgressHUD {
     if (!container.isInitialized()) {
       return this;
     }
-    _showCount++;
 
-    if (!_thenDismiss && _timer != null) {
-      _cachedDrawable = drawable;
-      _cachedStatus = status;
-    } else {
-      showImpl(drawable, status);
-    }
+    Task task = new Task(viewModel);
+    task.setDrawable(drawable);
+    task.setMessage(status);
+    taskQ.add(task);
+
+    task.promise().done(new DoneCallback<Task>() {
+      @Override
+      public void onDone(Task result) {
+        if (result.isThenDismiss()) {
+          dismiss();
+        }
+      }
+    });
+
+    task.promise().fail(new FailCallback<String>() {
+      @Override
+      public void onFail(String reason) {
+        Log.d(TAG, "Task cancelled, reason: " + reason);
+      }
+    });
 
     return this;
   }
@@ -134,44 +180,11 @@ public class UIProgressHUD {
   public static final UIViewDescriptor CHILD_STATE = UIViewDescriptor.create().alpha(1f).transform(Transform.fromIdentity().build()).seal();
   public static final UIViewDescriptor PARENT_STATE = UIViewDescriptor.create().alpha(.1f).transform(Transform.fromIdentity().build()).seal();
 
-  synchronized private void showImpl(Drawable drawable, String status) {
-    if (!ensureContainer()) {
-      return;
-    }
-    viewModel.setIcon(drawable);
-    viewModel.setMessage(status);
-
-    if (!_showing) {
-      PresentParam param = PresentParam.create()
-          .childStartingState(STARTING_STATE)
-          .childState(CHILD_STATE)
-          .parentState(PARENT_STATE)
-          .keepTVScreenState()
-          .disableDefaultDismissGesture()
-          .duration(500);
-
-      if (_canDismiss) {
-        layout.currentHud = this;
-      }
-
-      container.present(layout, param);
-    }
-
-    _showing = true;
-  }
-
   public boolean dismiss() {
     return dismiss(false);
   }
 
   public boolean dismiss(boolean force) {
-    _showCount = 0;
-    _showing = false;
-
-    if (_timer != null) {
-      _timer.cancel();
-    }
-
     if (layout == null || !ensureContainer()) {
       return true;
     }
@@ -186,29 +199,20 @@ public class UIProgressHUD {
   private static final DismissParam FORCE_PARAM = DismissParam.create().duration(1);
 
   public UIProgressHUD in(long ms) {
-    _timer = new CountDownTimer(ms, ms) {
-      @Override
-      public void onTick(long millisUntilFinished) {
-        // no tick
-      }
-
-      @Override
-      public void onFinish() {
-        if (_thenDismiss) {
-          dismiss();
-        } else {
-          showImpl(_cachedDrawable, _cachedStatus);
-        }
-      }
-    };
-
-    _timer.start();
-
+    if (!taskQ.isEmpty()) {
+      Task task = taskQ.get(taskQ.size() - 1);
+      task.setDuration(ms);
+    }
     return this;
   }
 
   public UIProgressHUD then() {
-    _thenDismiss = false;
+    if (!taskQ.isEmpty()) {
+      Task task = taskQ.get(taskQ.size() - 1);
+      if (task.getDuration() == Integer.MAX_VALUE) {
+        task.setDuration(DEFAULT_DURATION);
+      }
+    }
     return this;
   }
 
@@ -273,10 +277,71 @@ public class UIProgressHUD {
   }
 
   private boolean ensureContainer() {
-    if (container == null) {
-      return false;
+    return container != null;
+  }
+
+  private AnonymousHandler<CollectionChangedEventArgs> onTaskQChanged = new AnonymousHandler<CollectionChangedEventArgs>() {
+    @Override
+    public void handler(Object sender, CollectionChangedEventArgs args) {
+      if (args.action == CollectionChangedEventArgs.CollectionChangedAction.Add) {
+        final Task firstTask = (Task) args.newItems.get(0);
+        if (args.newStartingIndex == 0) {
+          if (!layout.isAppeared()) {
+            firstTask.run();
+
+            PresentParam param = PresentParam.create()
+              .childStartingState(STARTING_STATE)
+              .childState(CHILD_STATE)
+              .parentState(PARENT_STATE)
+              .keepTVScreenState()
+              .disableDefaultDismissGesture()
+              .duration(500);
+
+            if (_canDismiss) {
+              layout.currentHud = UIProgressHUD.this;
+            }
+            container.present(layout, param);
+
+            if (layout.isAppeared()) {
+              layout.spinner.start();
+            }
+          } else {
+            layout.spinner.stop();
+            firstTask.run();
+            layout.spinner.start();
+          }
+        }
+
+        for (int i = 0; i < args.newItems.size() - 1; i++) {
+          Task before = (Task) args.newItems.get(i);
+          final Task after = (Task) args.newItems.get(i + 1);
+          pipeTask(before, after);
+        }
+
+        if (args.newStartingIndex > 0 && taskQ.size() > args.newStartingIndex) {
+          Task lastTask = taskQ.get(args.newStartingIndex - 1);
+          if (lastTask.promise().isPending()) {
+            pipeTask(lastTask, firstTask);
+          } else {
+            layout.spinner.stop();
+            firstTask.run();
+            layout.spinner.start();
+          }
+        }
+      }
     }
-    return true;
+  };
+
+  private void pipeTask(final Task before, final Task after) {
+    before.setThenDismiss(false);
+    before.promise().done(new DoneCallback<Task>() {
+      @Override
+      public void onDone(Task task) {
+        layout.spinner.stop();
+        after.run();
+        layout.spinner.start();
+      }
+    });
   }
   //endregion
 
@@ -297,21 +362,21 @@ public class UIProgressHUD {
   }
 
   private UIProgressHUD reset() {
-    _showing = false;
-    _thenDismiss = true;
-    _cachedDrawable = null;
-    _cachedStatus = null;
     _canDismiss = true;
-
-    if (_timer != null) {
-      _timer.cancel();
-    }
-    _timer = null;
 
     if (viewModel != null) {
       viewModel.setIconWidth(32);
       viewModel.setIconHeight(32);
     }
+
+    for (Task task : instance.taskQ) {
+      if (task.promise().isPending()) {
+        task.cancel();
+      }
+    }
+
+    instance.taskQ.clear();
+
     return this;
   }
 
@@ -329,15 +394,7 @@ public class UIProgressHUD {
     }
   }
 
-  // TODO implement state machine
-  private int _showCount = 0;
-  private boolean _showing = false;
-  private CountDownTimer _timer = null;
-  private boolean _thenDismiss = true;
-  private Drawable _cachedDrawable;
-  private String _cachedStatus;
   private boolean _canDismiss = true;
-
   private Resources _resources;
   //endregion
 }
