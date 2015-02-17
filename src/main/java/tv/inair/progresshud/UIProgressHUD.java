@@ -10,6 +10,7 @@ import org.jdeferred.FailCallback;
 import java.util.HashMap;
 
 import inair.app.DismissParam;
+import inair.app.IAChildLayout;
 import inair.app.IANavigation;
 import inair.app.InAiRApplication;
 import inair.app.PresentParam;
@@ -74,7 +75,7 @@ public class UIProgressHUD {
   }
 
   public UIProgressHUD basedOnFrame(UIView view) {
-    if (ensureContainer()) {
+    if (hasContainer()) {
 
       viewModel.setContainer(view);
     }
@@ -185,14 +186,12 @@ public class UIProgressHUD {
   }
 
   public boolean dismiss(boolean force) {
-    if (layout == null || !ensureContainer()) {
+    if (layout == null || !hasContainer()) {
       return true;
     }
 
     // clean up
     layout.setDataContext(null);
-    doubleTapHandlerMap.remove(container.getClass().getName());
-    swipeHandlerMap.remove(container.getClass().getName());
     return force ? layout.dismiss(FORCE_PARAM) : layout.dismiss();
   }
 
@@ -256,27 +255,27 @@ public class UIProgressHUD {
   }
 
   private UIProgressHUD _onDoubleTap(Delegate<TouchEventArgs> handler) {
-    if (ensureContainer()) {
+    if (hasContainer()) {
       doubleTapHandlerMap.put(container.getClass().getName(), handler);
     }
     return this;
   }
 
   private UIProgressHUD _onSwipe(Delegate<SwipeEventArgs> handler) {
-    if (ensureContainer()) {
+    if (hasContainer()) {
       swipeHandlerMap.put(container.getClass().getName(), handler);
     }
     return this;
   }
 
   void _hudDismissed(boolean dismissContainer) {
-    if (dismissContainer && ensureContainer()) {
+    if (dismissContainer && hasContainer()) {
       container.dismiss();
     }
     container = null;
   }
 
-  private boolean ensureContainer() {
+  private boolean hasContainer() {
     return container != null;
   }
 
@@ -376,12 +375,14 @@ public class UIProgressHUD {
     }
 
     instance.taskQ.clear();
+    
+    // rebind event again
 
     return this;
   }
 
   public void onHUDPresented(Object sender, Void args) {
-    if (ensureContainer()) {
+    if (hasContainer()) {
       Delegate<TouchEventArgs> doubleTapHandler = doubleTapHandlerMap.get(container.getClass().getName());
       if (doubleTapHandler != null) {
         instance.layout.addHandlerForUIView(UIView.DoubleTapEvent, doubleTapHandler);
@@ -391,8 +392,20 @@ public class UIProgressHUD {
       if (swipeHandler != null) {
         instance.layout.addHandlerForUIView(UIView.SwipeEvent, swipeHandler);
       }
+      
+      if (container instanceof IAChildLayout) {
+        ((IAChildLayout) container).didDismiss.addHandler(Delegate.createHandler(removeHandlers, Void.class));
+      }
     }
   }
+  
+  private AnonymousHandler<Void> removeHandlers = new AnonymousHandler<Void>() {
+    @Override
+    public void handler(Object sender, Void args) {
+      doubleTapHandlerMap.remove(sender.getClass().getName());
+      swipeHandlerMap.remove(sender.getClass().getName());
+    }
+  };
 
   private boolean _canDismiss = true;
   private Resources _resources;
