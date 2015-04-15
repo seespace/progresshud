@@ -13,10 +13,8 @@ android {
     minSdkVersion 19
     targetSdkVersion 19
     versionCode 1
-    versionName "1.0"
+    versionName "1.0.1"
   }
-
-  version '0.1.0'
 }
 
 dependencies {
