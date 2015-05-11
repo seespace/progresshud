@@ -1,7 +1,9 @@
 # kickstart travis.
 language: android
 before_install: 
-after_success: 
+after_success:
+
+install: true 
 
 android:
   components:
@@ -11,3 +13,5 @@ android:
     - android-19
     # Platform tools
     - platform-tools
+
+script: TERM=dumb ./gradlew assembleDebug

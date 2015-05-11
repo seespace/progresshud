@@ -1,5 +1,7 @@
 # ProgressHUD #
 
+[![Build Status](https://travis-ci.org/seespace/progresshud.svg?branch=develop)](https://travis-ci.org/seespace/progresshud)
+
 ProgressHUD is a lightweight and easy-to-use HUD for InAiR.
 
 ### Download ###
