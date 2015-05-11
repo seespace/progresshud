@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>ProgressHUD by seespace</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>ProgressHUD</h1>
+        <p>ProgressHUD is a lightweight and easy-to-use HUD for InAiR.</p>
+
+        <p class="view"><a href="https://github.com/seespace/progresshud">View the Project on GitHub <small>seespace/progresshud</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/seespace/progresshud/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/seespace/progresshud/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/seespace/progresshud">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="progresshud" class="anchor" href="#progresshud" aria-hidden="true"><span class="octicon octicon-link"></span></a>ProgressHUD</h1>
+
+<p><a href="https://travis-ci.org/seespace/progresshud"><img src="https://travis-ci.org/seespace/progresshud.svg?branch=develop" alt="Build Status"></a></p>
+
+<p>ProgressHUD is a lightweight and easy-to-use HUD for InAiR.</p>
+
+<h3>
+<a id="download" class="anchor" href="#download" aria-hidden="true"><span class="octicon octicon-link"></span></a>Download</h3>
+
+<p>Download the latest <a href="https://raw.githubusercontent.com/seespace/maven/master/co/seespace/extra/progresshud/1.0.1/progresshud-1.0.1.aar">AAR</a> or grab via Gradle:</p>
+
+<div class="highlight highlight-groovy"><pre>repositories {
+  maven {
+    url <span class="pl-s"><span class="pl-pds">"</span>https://raw.githubusercontent.com/seespace/maven/master/<span class="pl-pds">"</span></span>
+  }
+}
+
+dependencies {
+  compile <span class="pl-s"><span class="pl-pds">'</span>co.seespace.extra:progresshud:1.0.1<span class="pl-pds">'</span></span>
+}</pre></div>
+
+<p>or Maven:</p>
+
+<div class="highlight highlight-xml"><pre><span class="pl-c">&lt;!-- repository --&gt;</span>
+&lt;<span class="pl-ent">repositories</span>&gt;
+  &lt;<span class="pl-ent">repository</span>&gt;
+    &lt;<span class="pl-ent">id</span>&gt;seespace-mvn-repo&lt;/<span class="pl-ent">id</span>&gt;
+    &lt;<span class="pl-ent">url</span>&gt;https://raw.githubusercontent.com/seespace/maven/master/&lt;/<span class="pl-ent">url</span>&gt;
+    &lt;<span class="pl-ent">snapshots</span>&gt;
+      &lt;<span class="pl-ent">enabled</span>&gt;true&lt;/<span class="pl-ent">enabled</span>&gt;
+      &lt;<span class="pl-ent">updatePolicy</span>&gt;always&lt;/<span class="pl-ent">updatePolicy</span>&gt;
+    &lt;/<span class="pl-ent">snapshots</span>&gt;
+  &lt;/<span class="pl-ent">repository</span>&gt;
+&lt;/<span class="pl-ent">repositories</span>&gt;
+
+<span class="pl-c">&lt;!-- dependency --&gt;</span>
+&lt;<span class="pl-ent">dependency</span>&gt;
+  &lt;<span class="pl-ent">groupId</span>&gt;co.seespace.extra&lt;/<span class="pl-ent">groupId</span>&gt;
+  &lt;<span class="pl-ent">artifactId</span>&gt;progresshud&lt;/<span class="pl-ent">artifactId</span>&gt;
+  &lt;<span class="pl-ent">version</span>&gt;1.0.1&lt;/<span class="pl-ent">version</span>&gt;
+&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+
+<h3>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h3>
+
+<h4>
+<a id="show-a-single-loader-indicator" class="anchor" href="#show-a-single-loader-indicator" aria-hidden="true"><span class="octicon octicon-link"></span></a>Show a single loader indicator</h4>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .show();</pre></div>
+
+<h4>
+<a id="show-loader-indicator-with-a-message" class="anchor" href="#show-loader-indicator-with-a-message" aria-hidden="true"><span class="octicon octicon-link"></span></a>Show loader indicator with a message</h4>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .show(<span class="pl-s"><span class="pl-pds">"</span>Logging In…<span class="pl-pds">"</span></span>);</pre></div>
+
+<p>Alternatively, you can use <a href="http://developer.android.com/guide/topics/resources/string-resource.html">Android String Resources</a>:</p>
+
+<div class="highlight highlight-xml"><pre>&lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">"</span>utf-8<span class="pl-pds">"</span></span>?&gt;
+&lt;<span class="pl-ent">resources</span>&gt;
+  &lt;<span class="pl-ent">string</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>logging_in<span class="pl-pds">"</span></span>&gt;Logging In…&lt;/<span class="pl-ent">string</span>&gt;
+&lt;/<span class="pl-ent">resources</span>&gt;</pre></div>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .show(<span class="pl-smi">R</span><span class="pl-k">.</span>string<span class="pl-k">.</span>logging_in);</pre></div>
+
+<h4>
+<a id="show-custom-drawable" class="anchor" href="#show-custom-drawable" aria-hidden="true"><span class="octicon octicon-link"></span></a>Show custom Drawable</h4>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">Drawable</span> customIndicator;
+<span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .show(customIndicator);</pre></div>
+
+<p>Use <a href="http://developer.android.com/guide/topics/resources/drawable-resource.html">Android Drawable Resources</a> instead:</p>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .show(<span class="pl-smi">R</span><span class="pl-k">.</span>drawable<span class="pl-k">.</span>loadingIndicator);</pre></div>
+
+<h4>
+<a id="show-custom-drawable-with-custom-message" class="anchor" href="#show-custom-drawable-with-custom-message" aria-hidden="true"><span class="octicon octicon-link"></span></a>Show custom Drawable with custom message</h4>
+
+<p>Easy, as you might guess:</p>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .show(<span class="pl-smi">R</span><span class="pl-k">.</span>drawable<span class="pl-k">.</span>loadingIndicator, <span class="pl-smi">R</span><span class="pl-k">.</span>string<span class="pl-k">.</span>logging_in);</pre></div>
+
+<h4>
+<a id="show-success-or-error" class="anchor" href="#show-success-or-error" aria-hidden="true"><span class="octicon octicon-link"></span></a>Show success or error</h4>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .showSuccess(<span class="pl-s"><span class="pl-pds">"</span>Done<span class="pl-pds">"</span></span>);</pre></div>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .showError(<span class="pl-smi">R</span><span class="pl-k">.</span>string<span class="pl-k">.</span>error_message);</pre></div>
+
+<h4>
+<a id="dissmissing" class="anchor" href="#dissmissing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dissmissing</h4>
+
+<p>Simply call <code>dissmiss()</code></p>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .dismiss();</pre></div>
+
+<p><strong>Note</strong>: Unless you set a timeout, the HUD never get dismissed. You have to explicitly call <code>dissmiss()</code>.</p>
+
+<h3>
+<a id="advanced-usage" class="anchor" href="#advanced-usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Advanced Usage</h3>
+
+<h4>
+<a id="hud-timeout" class="anchor" href="#hud-timeout" aria-hidden="true"><span class="octicon octicon-link"></span></a>HUD timeout</h4>
+
+<p>This snippet code will show "Hello" in 3 seconds then automatically dismiss.</p>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .show(<span class="pl-s"><span class="pl-pds">"</span>Hello<span class="pl-pds">"</span></span>)
+  .in(<span class="pl-c1">3000</span>);</pre></div>
+
+<h4>
+<a id="chain-huds-together" class="anchor" href="#chain-huds-together" aria-hidden="true"><span class="octicon octicon-link"></span></a>Chain HUDs together</h4>
+
+<p>This will show <code>"Hello"</code> in 3 seconds then show <code>"I'm ProgressHUD"</code> in 1 second then finally dismiss.</p>
+
+<div class="highlight highlight-java"><pre><span class="pl-smi">UIProgressHUD</span><span class="pl-k">.</span>with(context)
+  .show(<span class="pl-s"><span class="pl-pds">"</span>Hello<span class="pl-pds">"</span></span>)
+  .in(<span class="pl-c1">3000</span>)
+  .then()
+  .show(<span class="pl-s"><span class="pl-pds">"</span>I'm ProgressHUD<span class="pl-pds">"</span></span>)
+  .in(<span class="pl-c1">1000</span>);</pre></div>
+
+<p><strong>Note</strong>: You can use as many <code>show()</code>, <code>in()</code>, <code>then()</code> as possible.</p>
+
+<h3>
+<a id="supports" class="anchor" href="#supports" aria-hidden="true"><span class="octicon octicon-link"></span></a>Supports</h3>
+
+<ul>
+<li>Bug reporting: file an issue in this repo</li>
+<li>Discussions/questions: create new topic at <a href="https://developer.inair.tv">InAiR Developer Forums</a>
+</li>
+</ul>
+
+<h3>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h3>
+
+<p>The MIT License</p>
+
+<p>Copyright (c) 2014, SeeSpace. All rights reserved.</p>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/seespace">seespace</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
