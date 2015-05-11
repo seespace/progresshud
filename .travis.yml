@@ -1,0 +1,17 @@
+# kickstart travis.
+language: android
+before_install: 
+after_success:
+
+install: true 
+
+android:
+  components:
+    # The BuildTools version used by your project
+    - build-tools-20.0.0
+    # The SDK version used to compile your project
+    - android-19
+    # Platform tools
+    - platform-tools
+
+script: gradle assembleDebug
