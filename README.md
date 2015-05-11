@@ -1,5 +1,7 @@
 # ProgressHUD #
 
+[![Contact @longseespace](https://img.shields.io/badge/contact-%40longseespace-blue.svg)](https://twitter.com/longseespace)
+[![License MIT](https://img.shields.io/apm/l/vim-mode.svg)](#license)
 [![Build Status](https://travis-ci.org/seespace/progresshud.svg?branch=develop)](https://travis-ci.org/seespace/progresshud)
 
 ProgressHUD is a lightweight and easy-to-use HUD for InAiR.
