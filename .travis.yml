@@ -1,9 +1,7 @@
 # kickstart travis.
 language: android
-before_install:
-  pip install codecov
+before_install: 
 after_success:
-  codecov
 
 install: true 
 
