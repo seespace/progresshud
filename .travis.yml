@@ -14,4 +14,4 @@ android:
     # Platform tools
     - platform-tools
 
-script: TERM=dumb ./gradlew assembleDebug
+script: gradle assembleDebug
