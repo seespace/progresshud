@@ -56,3 +56,16 @@ dependencies {
   compile 'org.jdeferred:jdeferred-core:1.2.3'
   compile 'org.jdeferred:jdeferred-android-aar:1.2.3'
 }
+
+apply plugin: 'maven'
+
+uploadArchives {
+  repositories.mavenDeployer {
+    repository(url: "file://${file("${repo_path}").absolutePath}")
+    pom.project {
+      groupId "${extra_groupId}"
+      artifactId project.name
+      version project.version
+    }
+  }
+}
