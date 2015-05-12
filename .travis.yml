@@ -11,5 +11,5 @@ android:
     - platform-tools
 
 before_script: 
-  - echo "releaseBuild=true" >> gradle.properties
+  - echo "\nreleaseBuild=true" >> gradle.properties
 script: gradle assembleDebug
