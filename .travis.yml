@@ -1,9 +1,5 @@
 # kickstart travis.
 language: android
-before_install: 
-after_success:
-
-install: true 
 
 android:
   components:
@@ -14,4 +10,6 @@ android:
     # Platform tools
     - platform-tools
 
+before_script: 
+  - echo "releaseBuild=true" >> gradle.properties
 script: gradle assembleDebug
