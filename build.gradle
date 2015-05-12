@@ -35,8 +35,12 @@ repositories {
   }
 }
 
+def isProd() {
+  return System.getenv("PRODUCTION") != null;
+}
+
 def library(projectName, boolean extra) {
-  if ("$releaseBuild".trim().equals("true")) {
+  if (isProd()) {
     println "adding binary dependency on project $projectName"
     if (extra) {
       dependencies.create(group: "${extra_groupId}", name: "$projectName".substring(1), version: "+")
@@ -48,7 +52,6 @@ def library(projectName, boolean extra) {
     project("$projectName")
   }
 }
-
 
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
