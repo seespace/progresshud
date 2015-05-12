@@ -35,6 +35,21 @@ repositories {
   }
 }
 
+def library(projectName, boolean extra) {
+  if ("$releaseBuild".trim().equals("true")) {
+    println "adding binary dependency on project $projectName"
+    if (extra) {
+      dependencies.create(group: "${extra_groupId}", name: "$projectName".substring(1), version: "+")
+    } else {
+      dependencies.create(group: "${framework_groupId}", name: "$projectName".substring(1), version: "+")
+    }
+  } else {
+    println "adding project dependency on project $projectName"
+    project("$projectName")
+  }
+}
+
+
 dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
   compile library(':inair', false)
