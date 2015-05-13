@@ -80,12 +80,12 @@ public class ViewModel extends inair.data.ViewModel {
   //region Container
   public void setContainer(UIView container) {
     if (container instanceof UILayeredNavigationView || container instanceof UILayeredViewItem) {
-      setContainerX(resources.getInteger(R.integer.layered_x_navigator));
-      setContainerY(resources.getInteger(R.integer.layered_y_navigator));
-      setContainerZ(resources.getInteger(R.integer.layered_first_layer_z));
+      setContainerX(resources.getInteger(inair.R.integer.layered_x_navigator));
+      setContainerY(resources.getInteger(inair.R.integer.layered_y_navigator));
+      setContainerZ(resources.getInteger(inair.R.integer.layered_first_layer_z));
 
-      setContainerWidth(resources.getInteger(R.integer.layered_layer_width));
-      setContainerHeight(resources.getInteger(R.integer.layered_layer_height));
+      setContainerWidth(resources.getInteger(inair.R.integer.layered_layer_width));
+      setContainerHeight(resources.getInteger(inair.R.integer.layered_layer_height));
     } else {
       setContainerX(container.getPositionX());
       setContainerY(container.getPositionY());
